@@ -58,13 +58,26 @@ function kelvinToRgbValues(kelvin: number): { r: number; g: number; b: number } 
 
 export class SimScreenView extends ScreenView {
 
+  private plotBox: Rectangle; 
   private imageHR: Image;
   private diagramStar: Circle;
+  private lumStar: Circle;
   private sideBar: Rectangle;
   private sideStar: Circle;
+  private TText: RichText;
+  private LText: RichText;
+  private RText: RichText;
   private starPositionProperty: Property<Vector2>;
   private colorProperty: Property<number>; 
+  private lumLogProperty: Property<number>; 
+  private lumExtensionProperty:  DerivedProperty<number, number, unknown,unknown ,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown>;
+  private sideStarRadiusProperty: DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
+  private lumStarRadiusProperty:  DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
+  private diagramStarRadiusProperty:  DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;  
+  private realRadiusProperty:  DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
   private tempSlider: HSlider; 
+  private lumSlider: HSlider; 
+
 
   public constructor(model: SimModel, options?: ScreenViewOptions) {
     super(options);
@@ -230,7 +243,7 @@ export class SimScreenView extends ScreenView {
   // side star radius
 
   
-  this.lumExtensionProperty = new Property(20);
+  //this.lumExtensionProperty = new Property(20);
 
   const lumMin = -4; //log lum in solar lums
   const lumMax = 6; 
@@ -304,17 +317,17 @@ export class SimScreenView extends ScreenView {
 
   this.lumStarRadiusProperty = new DerivedProperty(
     [this.sideStarRadiusProperty, this.lumExtensionProperty],
-    (starR, lum) =>{
+    () =>{
       // add scaling to go from solar lums to size of extension 
-      return starR + lum;
+      return this.sideStarRadiusProperty.value + this.lumExtensionProperty.value;
     }
   )
 
-  this.sideStarRadiusProperty.link(radius => {
+  this.sideStarRadiusProperty.link((radius: number) => {
       this.sideStar.radius = radius;
     });
 
-  this.lumStarRadiusProperty.link(radius => {
+  this.lumStarRadiusProperty.link((radius: number) => {
       this.lumStar.radius = radius;
     });
 
@@ -387,7 +400,7 @@ export class SimScreenView extends ScreenView {
     }
   )
 
-  this.diagramStarRadiusProperty.link(radius => {
+  this.diagramStarRadiusProperty.link((radius: number) => {
     this.diagramStar.radius = radius;
   });
 
@@ -402,7 +415,7 @@ export class SimScreenView extends ScreenView {
   )
 
 
-  this.realRadiusProperty.link(value => {
+  this.realRadiusProperty.link((value: number) => {
    
    // this.RText.string = `Radius: R = (T<sub>Sun</sub>/T) <sup>2</sup> (L/L<sub>Sun</sub>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
     this.RText.string = `Radius: R =  (L / 4 \u03c0 \u03c3 T <sup>4</sup>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
