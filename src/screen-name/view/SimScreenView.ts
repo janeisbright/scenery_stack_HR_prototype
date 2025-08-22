@@ -68,8 +68,9 @@ export class SimScreenView extends ScreenView {
   private LText: RichText;
   private RText: RichText;
   private starPositionProperty: Property<Vector2>;
-  private colorProperty: Property<number>; 
+  private colorProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
   private lumLogProperty: Property<number>; 
+  private logTProperty: Property<number>; 
   private lumExtensionProperty:  DerivedProperty<number, number, unknown,unknown ,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown>;
   private sideStarRadiusProperty: DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
   private lumStarRadiusProperty:  DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
@@ -162,10 +163,22 @@ export class SimScreenView extends ScreenView {
 
   // temperature (color) slider 
 
-  this.colorProperty = new Property(5000);
   const minTemp = 1000;
   const maxTemp = 40000;
   const tempRange = new Range(minTemp, maxTemp); // Define the range of the slider
+
+  const minLogT = Math.log10(minTemp);
+  const maxLogT = Math.log10(maxTemp);
+  const logTempRange = new Range(minLogT, maxLogT);
+
+  this.logTProperty = new Property(4);
+
+  this.colorProperty = new DerivedProperty(
+    [this.logTProperty],
+        () =>{ 
+      return 10**this.logTProperty.value;
+    }
+  )
 
   this.colorProperty.link(kelvin => {
     const rgb = kelvinToRgbValues(kelvin);
@@ -193,7 +206,8 @@ export class SimScreenView extends ScreenView {
 
 
 
-  this.tempSlider = new HSlider(this.colorProperty,  tempRange, {
+
+  this.tempSlider = new HSlider(this.logTProperty,  logTempRange, {
             // Options for the slider's appearance and behavior
     //  trackSize: 5, // Thickness of the slider track
    //   thumbSize: 20, // Size of the movable thumb
@@ -257,7 +271,7 @@ export class SimScreenView extends ScreenView {
   const lumExtensionMin = 10;
   const lumExtensionMax = 100;
 
-  this.lumLogProperty = new Property(1);
+  this.lumLogProperty = new Property(3);
 
   this.lumExtensionProperty = new DerivedProperty(
     [this.lumLogProperty],
