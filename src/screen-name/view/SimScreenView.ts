@@ -83,7 +83,26 @@ export class SimScreenView extends ScreenView {
   public constructor(model: SimModel, options?: ScreenViewOptions) {
     super(options);
 
+
     // Sample Content
+
+        // Create a new Rectangle node that will act as the background.
+    const background = new Rectangle(
+      this.layoutBounds.left,
+      this.layoutBounds.top,
+      this.layoutBounds.width,
+      this.layoutBounds.height,
+      {
+        fill: 'black', // Or 'black'
+        // This is a crucial line. A background node should always be non-interactive
+        // so that events can pass through to the nodes on top of it.
+        pickable: false
+      }
+    );
+
+    // Add the background as the very first child.
+    // This ensures that all other nodes are drawn on top of it.
+    this.addChild(background);
 
 
     this.imageHR = new Image('images/HR.jpg',{
@@ -100,7 +119,7 @@ export class SimScreenView extends ScreenView {
 
   this.plotBox = new Rectangle(75, 10, 490, 490, {
    // fill: 'white',
-    stroke: 'green',
+   // stroke: 'green',
   });
   this.addChild(this.plotBox)
 
