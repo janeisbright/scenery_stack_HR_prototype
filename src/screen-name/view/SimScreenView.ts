@@ -154,7 +154,7 @@ export class SimScreenView extends ScreenView {
 
   // sidebar star and sliders: 
 
-  this.sideBar = new Rectangle(.6*this.layoutBounds.maxX, 0, 400, 570, {
+  this.sideBar = new Rectangle(.6*this.layoutBounds.maxX, 0, 400, 560, {
     fill: 'black',
     stroke: 'white',
   });
@@ -216,7 +216,7 @@ export class SimScreenView extends ScreenView {
 
 // make lumstar have a opacity gradient:
 
-const createRadialFadePaint = (r, g, b, radius) => {
+const createRadialFadePaint = (r: number, g: number, b: number, radius: number) => {
     // Defines a concentric gradient, starting at radius 0 and ending at 'radius'.
     const fadeGradient = new RadialGradient(
         0, 0, 0,        // Inner circle (center at 0,0, radius 0)
