@@ -1,6 +1,6 @@
 import { ScreenView, ScreenViewOptions } from "scenerystack/sim";
 import { SimModel } from "../model/SimModel.js";
-import { ResetAllButton, MathSymbolFont, PhetFont } from "scenerystack/scenery-phet";
+import { ResetAllButton, MathSymbolFont, PhetFont, LightRaysNode } from "scenerystack/scenery-phet";
 import { Rectangle, Text, Image, Circle, Color, DragListener, RichText  } from "scenerystack/scenery";
 import { TextPushButton } from "scenerystack/sun";
 import { HSlider } from 'scenerystack/sun';
@@ -62,6 +62,7 @@ export class SimScreenView extends ScreenView {
   private imageHR: Image;
   private diagramStar: Circle;
   private lumStar: Circle;
+  //private rays: LightRaysNode;
   private sideBar: Rectangle;
   private sideStar: Circle;
   private TText: RichText;
@@ -389,6 +390,20 @@ export class SimScreenView extends ScreenView {
       });
 
     this.sideBar.addChild(this.lumSlider); // Add the slider to the view
+
+  
+  // light rays for side star:
+
+  //this.rays = new LightRaysNode(5, {
+ //   minRays: 5,
+//    maxRays:10,
+ //   fill: 'green',
+ //   minRayLength: 50,
+ //   maxRayLength:150,
+ //   bottom: this.sideBar.centerY + 175,
+ //   left: this.sideBar.centerX - 50,
+ // }
+//);
 
   
   // diagram star y location
