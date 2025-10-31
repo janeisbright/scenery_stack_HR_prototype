@@ -1,7 +1,7 @@
 import { ScreenView, ScreenViewOptions } from "scenerystack/sim";
 import { SimModel } from "../model/SimModel.js";
 import { ResetAllButton, MathSymbolFont, PhetFont, LightRaysNode } from "scenerystack/scenery-phet";
-import { Rectangle, Text, Image, Circle, Color, DragListener, RichText  } from "scenerystack/scenery";
+import { Rectangle, Text, Image, Circle, Color, DragListener, RichText,  RadialGradient   } from "scenerystack/scenery";
 import { TextPushButton } from "scenerystack/sun";
 import { HSlider } from 'scenerystack/sun';
 import { DerivedProperty, Property } from 'scenerystack/axon'; 
@@ -181,6 +181,9 @@ export class SimScreenView extends ScreenView {
   this.sideBar.addChild(this.lumStar);
 
 
+  
+
+
   // temperature (color) slider 
 
   const minTemp = 1000;
@@ -210,10 +213,31 @@ export class SimScreenView extends ScreenView {
     this.diagramStar.fill = new Color(rgb.r, rgb.g, rgb.b, 1); // Create a new Color object from the RGB values
   });
 
-  this.colorProperty.link(kelvin => {
-    const rgb = kelvinToRgbValues(kelvin);
-    this.lumStar.fill = new Color(rgb.r, rgb.g, rgb.b, .5); // Create a new Color object from the RGB values
-  });
+
+// make lumstar have a opacity gradient:
+
+const createRadialFadePaint = (r, g, b, radius) => {
+    // Defines a concentric gradient, starting at radius 0 and ending at 'radius'.
+    const fadeGradient = new RadialGradient(
+        0, 0, 0,        // Inner circle (center at 0,0, radius 0)
+        0, 0, radius    // Outer circle (center at 0,0, radius 'radius')
+    );
+
+    // Color strings using the determined RGB values
+    const opaqueColor = `rgba(${r}, ${g}, ${b}, 1)`; // Alpha = 1 (Opaque)
+    const transparentColor = `rgba(${r}, ${g}, ${b}, 0)`; // Alpha = 0 (Transparent)
+
+    // Stop 1: Center is fully opaque
+    fadeGradient.addColorStop(0.0, opaqueColor);
+
+    // Stop 2: Edge is fully transparent, creating the fade effect
+    // NOTE: For a sharper edge, you can use: fadeGradient.addColorStop(0.9, opaqueColor);
+    fadeGradient.addColorStop(1.0, transparentColor);
+
+    return fadeGradient;
+}
+ 
+// updateLumStarAppearance lower in code afer lumStarRadiusProperty is defined
 
   // have the temperature slider move the diagram star 
 
@@ -483,6 +507,28 @@ export class SimScreenView extends ScreenView {
   
   });
 
+  const updateLumStarAppearance = () => {
+    // 1. Get current values from the properties
+    const kelvin = this.colorProperty.get();
+    const rgb = kelvinToRgbValues(kelvin); 
+    const radius = this.lumStarRadiusProperty.get();
+    const gradientPaint = createRadialFadePaint(
+        rgb.r, 
+        rgb.g, 
+        rgb.b, 
+
+       radius
+    );
+    this.lumStar.fill = gradientPaint; // Create a new Color object from the RGB values
+  };
+
+  // Link 1: Call the update function whenever the Kelvin color changes
+this.colorProperty.link(updateLumStarAppearance);
+
+// Link 2: Call the same update function whenever the radius changes
+// This ensures that movement on BOTH sliders updates the gradient correctly.
+this.lumStarRadiusProperty.link(updateLumStarAppearance);
+  
 
 
   /*
