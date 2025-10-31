@@ -552,6 +552,8 @@ this.lumStarRadiusProperty.link(updateLumStarAppearance);
         this.interruptSubtreeInput();
         model.reset();
         this.reset();
+        this.logTProperty.set(3.87506)
+        this.lumLogProperty.set(3);
       },
       right: this.layoutBounds.maxX - 10,
       bottom: this.layoutBounds.maxY - 10,
