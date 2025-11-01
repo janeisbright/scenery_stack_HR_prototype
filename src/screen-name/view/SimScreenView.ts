@@ -71,6 +71,7 @@ export class SimScreenView extends ScreenView {
   private starPositionProperty: Property<Vector2>;
   private colorProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
   private lumLogProperty: Property<number>; 
+  private diagramStarXProperty: Property<number>; 
   private logTProperty: Property<number>; 
   private lumExtensionProperty:  DerivedProperty<number, number, unknown,unknown ,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown>;
   private sideStarRadiusProperty: DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
@@ -239,16 +240,33 @@ const createRadialFadePaint = (r: number, g: number, b: number, radius: number) 
  
 // updateLumStarAppearance lower in code afer lumStarRadiusProperty is defined
 
+
+// diagram star x position
+
+this.diagramStarXProperty = new Property(this.plotBox.left + 30)
+
+this.diagramStarXProperty.link( x => {
+    this.diagramStar.x = x; 
+} );
+
+
   // have the temperature slider move the diagram star 
 
   this.colorProperty.link(kelvin => {
     const temp = kelvin;
   //  scaled_value = 1 - (log(kelvin / minTemp) / log(maxTemp/ minTemp))
    // this.diagramStar.x =this.plotBox.right -( kelvin/maxTemp * this.plotBox.width) - 25;
-    this.diagramStar.x = this.plotBox.left + 30 + (this.plotBox.width - 60) * (1 - (Math.log(temp/ minTemp) / Math.log(maxTemp/ minTemp)));
+   // this.diagramStar.x = this.plotBox.left + 30 + (this.plotBox.width - 60) * (1 - (Math.log(temp/ minTemp) / Math.log(maxTemp/ minTemp)));
+    this.diagramStarXProperty.set(this.plotBox.left + 30 + (this.plotBox.width - 60) * (1 - (Math.log(temp/ minTemp) / Math.log(maxTemp/ minTemp))));
   });
 
 
+  this.diagramStarXProperty.link(x => {
+    const c = this.plotBox.left + 30 + (this.plotBox.width - 60);
+   // this.logTProperty.set(600*x);
+   // this.logTProperty.set((1-(x/c)) * Math.log(maxTemp/ minTemp) + Math.log(minTemp)   );
+
+  })
 
 
   this.tempSlider = new HSlider(this.logTProperty,  logTempRange, {
