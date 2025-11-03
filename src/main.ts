@@ -10,7 +10,7 @@ import { SimScreen } from "./screen-name/SimScreen.js";
 onReadyToLaunch(() => {
   // The title, like most string-like things, is a StringProperty that can change to different values (e.g. for
   // different languages, see localeProperty from scenerystack/joist)
-  const titleStringProperty = new StringProperty("test_scenerystack2");
+  const titleStringProperty = new StringProperty("Hertzsprung-Russell (HR) Diagram");
 
   const screens = [
     new SimScreen({ tandem: Tandem.ROOT.createTandem("simScreen") }),

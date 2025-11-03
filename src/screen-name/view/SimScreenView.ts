@@ -1,7 +1,7 @@
 import { ScreenView, ScreenViewOptions } from "scenerystack/sim";
 import { SimModel } from "../model/SimModel.js";
-import { ResetAllButton, MathSymbolFont, PhetFont } from "scenerystack/scenery-phet";
-import { Rectangle, Text, Image, Circle, Color, DragListener, RichText  } from "scenerystack/scenery";
+import { ResetAllButton, MathSymbolFont, PhetFont, LightRaysNode } from "scenerystack/scenery-phet";
+import { Rectangle, Text, Image, Circle, Color, DragListener, RichText,  RadialGradient   } from "scenerystack/scenery";
 import { TextPushButton } from "scenerystack/sun";
 import { HSlider } from 'scenerystack/sun';
 import { DerivedProperty, Property } from 'scenerystack/axon'; 
@@ -62,14 +62,17 @@ export class SimScreenView extends ScreenView {
   private imageHR: Image;
   private diagramStar: Circle;
   private lumStar: Circle;
+  //private rays: LightRaysNode;
   private sideBar: Rectangle;
   private sideStar: Circle;
   private TText: RichText;
   private LText: RichText;
   private RText: RichText;
   private starPositionProperty: Property<Vector2>;
-  private colorProperty: Property<number>; 
+  private colorProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
   private lumLogProperty: Property<number>; 
+  private diagramStarXProperty: Property<number>; 
+  private logTProperty: Property<number>; 
   private lumExtensionProperty:  DerivedProperty<number, number, unknown,unknown ,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown>;
   private sideStarRadiusProperty: DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
   private lumStarRadiusProperty:  DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
@@ -82,7 +85,26 @@ export class SimScreenView extends ScreenView {
   public constructor(model: SimModel, options?: ScreenViewOptions) {
     super(options);
 
+
     // Sample Content
+
+        // Create a new Rectangle node that will act as the background.
+    const background = new Rectangle(
+      this.layoutBounds.left,
+      this.layoutBounds.top,
+      this.layoutBounds.width,
+      this.layoutBounds.height,
+      {
+        fill: 'black', // Or 'black'
+        // This is a crucial line. A background node should always be non-interactive
+        // so that events can pass through to the nodes on top of it.
+        pickable: false
+      }
+    );
+
+    // Add the background as the very first child.
+    // This ensures that all other nodes are drawn on top of it.
+    this.addChild(background);
 
 
     this.imageHR = new Image('images/HR.jpg',{
@@ -99,7 +121,7 @@ export class SimScreenView extends ScreenView {
 
   this.plotBox = new Rectangle(75, 10, 490, 490, {
    // fill: 'white',
-    stroke: 'green',
+   // stroke: 'green',
   });
   this.addChild(this.plotBox)
 
@@ -125,7 +147,7 @@ export class SimScreenView extends ScreenView {
   this.starPositionProperty.link( position => this.diagramStar.translation = position );
 
   this.diagramStar.addInputListener( new DragListener( {
-   positionProperty: this.starPositionProperty,
+  // positionProperty: this.starPositionProperty,
    dragBoundsProperty: new Property( this.plotBox.bounds.eroded( 30 ) )
   } ) );
 
@@ -133,7 +155,7 @@ export class SimScreenView extends ScreenView {
 
   // sidebar star and sliders: 
 
-  this.sideBar = new Rectangle(.6*this.layoutBounds.maxX, 0, 400, 570, {
+  this.sideBar = new Rectangle(.6*this.layoutBounds.maxX, 0, 400, 560, {
     fill: 'black',
     stroke: 'white',
   });
@@ -160,12 +182,27 @@ export class SimScreenView extends ScreenView {
   this.sideBar.addChild(this.lumStar);
 
 
+  
+
+
   // temperature (color) slider 
 
-  this.colorProperty = new Property(5000);
   const minTemp = 1000;
   const maxTemp = 40000;
   const tempRange = new Range(minTemp, maxTemp); // Define the range of the slider
+
+  const minLogT = Math.log10(minTemp);
+  const maxLogT = Math.log10(maxTemp);
+  const logTempRange = new Range(minLogT, maxLogT);
+
+  this.logTProperty = new Property(4);
+
+  this.colorProperty = new DerivedProperty(
+    [this.logTProperty],
+        () =>{ 
+      return 10**this.logTProperty.value;
+    }
+  )
 
   this.colorProperty.link(kelvin => {
     const rgb = kelvinToRgbValues(kelvin);
@@ -177,10 +214,41 @@ export class SimScreenView extends ScreenView {
     this.diagramStar.fill = new Color(rgb.r, rgb.g, rgb.b, 1); // Create a new Color object from the RGB values
   });
 
-  this.colorProperty.link(kelvin => {
-    const rgb = kelvinToRgbValues(kelvin);
-    this.lumStar.fill = new Color(rgb.r, rgb.g, rgb.b, .5); // Create a new Color object from the RGB values
-  });
+
+// make lumstar have a opacity gradient:
+
+const createRadialFadePaint = (r: number, g: number, b: number, radius: number) => {
+    // Defines a concentric gradient, starting at radius 0 and ending at 'radius'.
+    const fadeGradient = new RadialGradient(
+        0, 0, 0,        // Inner circle (center at 0,0, radius 0)
+        0, 0, radius    // Outer circle (center at 0,0, radius 'radius')
+    );
+
+    // Color strings using the determined RGB values
+    const opaqueColor = `rgba(${r}, ${g}, ${b}, 1)`; // Alpha = 1 (Opaque)
+    const transparentColor = `rgba(${r}, ${g}, ${b}, 0)`; // Alpha = 0 (Transparent)
+
+    // Stop 1: Center is fully opaque
+    fadeGradient.addColorStop(0.0, opaqueColor);
+
+    // Stop 2: Edge is fully transparent, creating the fade effect
+    // NOTE: For a sharper edge, you can use: fadeGradient.addColorStop(0.9, opaqueColor);
+    fadeGradient.addColorStop(1.0, transparentColor);
+
+    return fadeGradient;
+}
+ 
+// updateLumStarAppearance lower in code afer lumStarRadiusProperty is defined
+
+
+// diagram star x position
+
+this.diagramStarXProperty = new Property(this.plotBox.left + 30)
+
+this.diagramStarXProperty.link( x => {
+    this.diagramStar.x = x; 
+} );
+
 
   // have the temperature slider move the diagram star 
 
@@ -188,12 +256,20 @@ export class SimScreenView extends ScreenView {
     const temp = kelvin;
   //  scaled_value = 1 - (log(kelvin / minTemp) / log(maxTemp/ minTemp))
    // this.diagramStar.x =this.plotBox.right -( kelvin/maxTemp * this.plotBox.width) - 25;
-    this.diagramStar.x = this.plotBox.left + 30 + (this.plotBox.width - 60) * (1 - (Math.log(temp/ minTemp) / Math.log(maxTemp/ minTemp)));
+   // this.diagramStar.x = this.plotBox.left + 30 + (this.plotBox.width - 60) * (1 - (Math.log(temp/ minTemp) / Math.log(maxTemp/ minTemp)));
+    this.diagramStarXProperty.set(this.plotBox.left + 30 + (this.plotBox.width - 60) * (1 - (Math.log(temp/ minTemp) / Math.log(maxTemp/ minTemp))));
   });
 
 
+  this.diagramStarXProperty.link(x => {
+    const c = this.plotBox.left + 30 + (this.plotBox.width - 60);
+   // this.logTProperty.set(600*x);
+   // this.logTProperty.set((1-(x/c)) * Math.log(maxTemp/ minTemp) + Math.log(minTemp)   );
 
-  this.tempSlider = new HSlider(this.colorProperty,  tempRange, {
+  })
+
+
+  this.tempSlider = new HSlider(this.logTProperty,  logTempRange, {
             // Options for the slider's appearance and behavior
     //  trackSize: 5, // Thickness of the slider track
    //   thumbSize: 20, // Size of the movable thumb
@@ -257,7 +333,7 @@ export class SimScreenView extends ScreenView {
   const lumExtensionMin = 10;
   const lumExtensionMax = 100;
 
-  this.lumLogProperty = new Property(1);
+  this.lumLogProperty = new Property(3);
 
   this.lumExtensionProperty = new DerivedProperty(
     [this.lumLogProperty],
@@ -358,6 +434,20 @@ export class SimScreenView extends ScreenView {
     this.sideBar.addChild(this.lumSlider); // Add the slider to the view
 
   
+  // light rays for side star:
+
+  //this.rays = new LightRaysNode(5, {
+ //   minRays: 5,
+//    maxRays:10,
+ //   fill: 'green',
+ //   minRayLength: 50,
+ //   maxRayLength:150,
+ //   bottom: this.sideBar.centerY + 175,
+ //   left: this.sideBar.centerX - 50,
+ // }
+//);
+
+  
   // diagram star y location
 
   this.lumLogProperty.link(L => {
@@ -418,7 +508,8 @@ export class SimScreenView extends ScreenView {
   this.realRadiusProperty.link((value: number) => {
    
    // this.RText.string = `Radius: R = (T<sub>Sun</sub>/T) <sup>2</sup> (L/L<sub>Sun</sub>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
-    this.RText.string = `this is the gh-pages branch Radius: R =  (L / 4 \u03c0 \u03c3 T <sup>4</sup>)<sup>1/2</sup> <br/>  = ${value.toPrecision(5)} R<sub>Sun</sub>`;
+    this.RText.string = `Radius: R =  (L / 4 \u03c0 \u03c3 T <sup>4</sup>)<sup>1/2</sup> 
+    <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toPrecision(5)} R<sub>Sun</sub>`;
   });
 
   this.colorProperty.link(value => {
@@ -434,6 +525,28 @@ export class SimScreenView extends ScreenView {
   
   });
 
+  const updateLumStarAppearance = () => {
+    // 1. Get current values from the properties
+    const kelvin = this.colorProperty.get();
+    const rgb = kelvinToRgbValues(kelvin); 
+    const radius = this.lumStarRadiusProperty.get();
+    const gradientPaint = createRadialFadePaint(
+        rgb.r, 
+        rgb.g, 
+        rgb.b, 
+
+       radius
+    );
+    this.lumStar.fill = gradientPaint; // Create a new Color object from the RGB values
+  };
+
+  // Link 1: Call the update function whenever the Kelvin color changes
+this.colorProperty.link(updateLumStarAppearance);
+
+// Link 2: Call the same update function whenever the radius changes
+// This ensures that movement on BOTH sliders updates the gradient correctly.
+this.lumStarRadiusProperty.link(updateLumStarAppearance);
+  
 
 
   /*
@@ -457,6 +570,8 @@ export class SimScreenView extends ScreenView {
         this.interruptSubtreeInput();
         model.reset();
         this.reset();
+        this.logTProperty.set(3.87506)
+        this.lumLogProperty.set(3);
       },
       right: this.layoutBounds.maxX - 10,
       bottom: this.layoutBounds.maxY - 10,
