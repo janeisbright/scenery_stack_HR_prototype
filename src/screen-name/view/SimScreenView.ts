@@ -2,10 +2,10 @@ import { ScreenView, ScreenViewOptions } from "scenerystack/sim";
 import { SimModel } from "../model/SimModel.js";
 import { ResetAllButton, MathSymbolFont, PhetFont, LightRaysNode } from "scenerystack/scenery-phet";
 import { Rectangle, Text, Image, Circle, Color, DragListener, RichText,  RadialGradient   } from "scenerystack/scenery";
-import { TextPushButton } from "scenerystack/sun";
+import { TextPushButton, SliderTickOptions } from "scenerystack/sun";
 import { HSlider } from 'scenerystack/sun';
 import { DerivedProperty, Property } from 'scenerystack/axon'; 
-import { Range, Vector2, Bounds2 } from 'scenerystack/dot'; 
+import { Range, Vector2, Bounds2, Dimension2 } from 'scenerystack/dot'; 
 
 
 // Helper function to convert Kelvin to RGB values (0-255)
@@ -155,7 +155,7 @@ export class SimScreenView extends ScreenView {
 
   // sidebar star and sliders: 
 
-  this.sideBar = new Rectangle(.6*this.layoutBounds.maxX, 0, 400, 560, {
+  this.sideBar = new Rectangle(.6*this.layoutBounds.maxX, 5, 400, 550, {
     fill: 'black',
     stroke: 'white',
   });
@@ -165,7 +165,7 @@ export class SimScreenView extends ScreenView {
 
   this.lumStar = new Circle(50, {
     fill: 'red',
-    bottom: this.sideBar.centerY + 175,
+    bottom: this.sideBar.centerY + 185,
     left: this.sideBar.centerX - 50, 
    // translation: this.imageHR.right,
   // bottom: this.imageHR.centerY + 400,
@@ -279,7 +279,8 @@ this.diagramStarXProperty.link( x => {
  //   left: this.imageHR.right +100,
  //   bottom: this.imageHR.centerY + 50, 
   // centerTop: this.sideBar.centerTop,
-  bottom: this.sideBar.centerY- 30,
+  trackSize: new Dimension2(250, 4),
+  bottom: this.sideBar.centerY- 20,
   left: this.sideBar.centerX - 180, 
   children: [
     this.TText = new RichText('Temperature', {
@@ -415,8 +416,11 @@ this.diagramStarXProperty.link( x => {
    // left: this.imageHR.right +100,
   //  bottom: this.imageHR.centerY - 50, 
     //centerTop: this.sideBar.centerTop,
-  bottom: this.sideBar.centerY - 200,
+  trackSize: new Dimension2(250, 4),
+ // addMajorTick: [1, 2, 3],
+  bottom: this.sideBar.centerY - 190,
   left: this.sideBar.centerX - 180, 
+ // left: this.tempSlider.left,
     children: [
     this.LText = new RichText( 'Luminosity', {
      // centerBottom: Vector2.ZERO,
@@ -427,7 +431,29 @@ this.diagramStarXProperty.link( x => {
       font: new PhetFont(12),
       scale: 2,
       fill: 'white'
+    } ),
+    /** 
+    this.LSide1Text = new RichText( 'Dim', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+      rightCenter: new Vector2(-10, 0),
+      //font: 'bold 20px sans-serif',
+      font: new PhetFont(10),
+      scale: 2,
+      fill: 'white'
+    } ),
+      this.LSide2Text = new RichText( 'Bright', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+      leftCenter: new Vector2(210, 0),
+      //font: 'bold 20px sans-serif',
+      font: new PhetFont(10),
+      scale: 2,
+      fill: 'white'
     } )
+      */
   ]
       });
 
@@ -464,7 +490,7 @@ this.diagramStarXProperty.link( x => {
 
   const sigma_SB = 5.67 * 10**(-8); 
  // const Tsun = 5800; //temp of sun in K
-  const diagramStarRadiusMin = 1; //in code size units
+  const diagramStarRadiusMin = 0.5; //in code size units
   const diagramStarRadiusMax = 25; //in code size units
  // const HRStarRadiusMin = .0001; //in Rsun
 //  const HRStarRadiusMax = 6400; //in Rsun
@@ -509,12 +535,12 @@ this.diagramStarXProperty.link( x => {
    
    // this.RText.string = `Radius: R = (T<sub>Sun</sub>/T) <sup>2</sup> (L/L<sub>Sun</sub>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
     this.RText.string = `Radius: R =  (L / 4 \u03c0 \u03c3 T <sup>4</sup>)<sup>1/2</sup> 
-    <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toPrecision(5)} R<sub>Sun</sub>`;
+    <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toPrecision(4)} R<sub>Sun</sub>`;
   });
 
   this.colorProperty.link(value => {
    
-    this.TText.string = `Temperature: T = ${value.toPrecision(5)} K` ;
+    this.TText.string = `Temperature: T = ${value.toPrecision(4)} K` ;
   
   });
 
