@@ -130,7 +130,7 @@ export class SimScreenView extends ScreenView {
 
   this.diagramStar = new Circle( 25, {
   fill: 'yellow',
-  cursor: 'pointer',
+ // cursor: 'pointer',
   //translation: this.imageHR.center,
   center: Vector2.ZERO,
 /*  children: [
@@ -147,7 +147,7 @@ export class SimScreenView extends ScreenView {
   this.starPositionProperty.link( position => this.diagramStar.translation = position );
 
   this.diagramStar.addInputListener( new DragListener( {
-   positionProperty: this.starPositionProperty,
+ //  positionProperty: this.starPositionProperty,
    dragBoundsProperty: new Property( this.plotBox.bounds.eroded( 30 ) )
   } ) );
 
