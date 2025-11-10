@@ -187,7 +187,7 @@ export class SimScreenView extends ScreenView {
 
   // temperature (color) slider 
 
-  const minTemp = 1000;
+  const minTemp = 2500;
   const maxTemp = 40000;
   const tempRange = new Range(minTemp, maxTemp); // Define the range of the slider
 
@@ -322,8 +322,8 @@ this.diagramStarXProperty.link( x => {
   
   //this.lumExtensionProperty = new Property(20);
 
-  const lumMin = -4; //log lum in solar lums
-  const lumMax = 6; 
+  const lumMin = -4.1; //log lum in solar lums
+  const lumMax = 5.5; 
 //  const lumMin = .0001;
  // const lumMax = 1000000; 
 //  const lumMin = 10;
@@ -596,8 +596,8 @@ this.lumStarRadiusProperty.link(updateLumStarAppearance);
         this.interruptSubtreeInput();
         model.reset();
         this.reset();
-        this.logTProperty.set(3.87506)
-        this.lumLogProperty.set(3);
+        this.logTProperty.set(4.07918)
+        this.lumLogProperty.set(2.77815);
       },
       right: this.layoutBounds.maxX - 10,
       bottom: this.layoutBounds.maxY - 10,
