@@ -109,6 +109,7 @@ export class SimScreenView extends ScreenView {
 
     this.imageHR = new Image('images/HR.jpg',{
       scale: 0.45,
+     // scale: 0.36,
     });
     this.addChild(this.imageHR);
 
@@ -124,6 +125,13 @@ export class SimScreenView extends ScreenView {
    // stroke: 'green',
   });
   this.addChild(this.plotBox)
+
+  this.blackBox = new Rectangle(405, 410, 100, 20, 9, 9, {
+    fill: 'black',
+  //  stroke: 'white',
+  });
+  this.plotBox.addChild(this.blackBox)
+
 
 
   // diagram star
@@ -160,6 +168,7 @@ export class SimScreenView extends ScreenView {
     stroke: 'white',
   });
   this.addChild(this.sideBar)
+
 
   //sidebar star and lum star
 
@@ -573,6 +582,19 @@ this.colorProperty.link(updateLumStarAppearance);
 // This ensures that movement on BOTH sliders updates the gradient correctly.
 this.lumStarRadiusProperty.link(updateLumStarAppearance);
   
+
+this.Lbox = new Rectangle(this.sideBar.centerX-190, 9, 350, 90, 10, 10, {
+   // fill: 'black',
+    stroke: 'white',
+  });
+  this.sideBar.addChild(this.Lbox)
+
+this.Tbox = new Rectangle(this.sideBar.centerX-190, 109, 350, 90, 10, 10, {
+   // fill: 'black',
+    stroke: 'white',
+  });
+  this.sideBar.addChild(this.Tbox)
+
 
 
   /*
