@@ -583,13 +583,13 @@ this.colorProperty.link(updateLumStarAppearance);
 this.lumStarRadiusProperty.link(updateLumStarAppearance);
   
 
-this.Lbox = new Rectangle(this.sideBar.centerX-190, 9, 320, 90, 10, 10, {
+this.Lbox = new Rectangle(this.sideBar.centerX-190, 9, 340, 90, 10, 10, {
    // fill: 'black',
     stroke: 'white',
   });
   this.sideBar.addChild(this.Lbox)
 
-this.Tbox = new Rectangle(this.sideBar.centerX-190, 109, 320, 90, 10, 10, {
+this.Tbox = new Rectangle(this.sideBar.centerX-190, 109, 340, 90, 10, 10, {
    // fill: 'black',
     stroke: 'white',
   });
