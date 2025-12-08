@@ -557,7 +557,7 @@ this.diagramStarXProperty.link( x => {
   this.lumLogProperty.link(value => {
    
    // this.LText.string = `Luminosity: L = ${(10**value).toPrecision(3)} L<sub>Sun</sub>`;
-    this.LText.string = `Luminosity: L = ${(10**value).toLocaleString('en-US', {maximumSignificantDigits: 2 })} K`;
+    this.LText.string = `Luminosity: L = ${(10**value).toLocaleString('en-US', {maximumSignificantDigits: 2 })} L<sub>Sun</sub>`;
   });
 
   const updateLumStarAppearance = () => {
