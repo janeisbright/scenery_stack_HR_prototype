@@ -544,20 +544,20 @@ this.diagramStarXProperty.link( x => {
    
    // this.RText.string = `Radius: R = (T<sub>Sun</sub>/T) <sup>2</sup> (L/L<sub>Sun</sub>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
     this.RText.string = `Radius: R =  (L / 4 \u03c0 \u03c3 T <sup>4</sup>)<sup>1/2</sup> 
-    <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toPrecision(4)} R<sub>Sun</sub>`;
+    <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toLocaleString('en-US', { maximumSignificantDigits: 2 })} R<sub>Sun</sub>`;
   });
 
   this.colorProperty.link(value => {
    
-    this.TText.string = `Temperature: T = ${value.toPrecision(4)} K` ;
-  
+  //  this.TText.string = `Temperature: T = ${value.toFixed(0)} K` ;
+    this.TText.string = `Temperature: T = ${value.toLocaleString('en-US', { maximumSignificantDigits: 2 })} K`;
   });
 
 
   this.lumLogProperty.link(value => {
    
-    this.LText.string = `Luminosity: L = ${(10**value).toPrecision(3)} L<sub>Sun</sub>`;
-  
+   // this.LText.string = `Luminosity: L = ${(10**value).toPrecision(3)} L<sub>Sun</sub>`;
+    this.LText.string = `Luminosity: L = ${(10**value).toLocaleString('en-US', {maximumSignificantDigits: 2 })} L<sub>Sun</sub>`;
   });
 
   const updateLumStarAppearance = () => {
@@ -583,13 +583,13 @@ this.colorProperty.link(updateLumStarAppearance);
 this.lumStarRadiusProperty.link(updateLumStarAppearance);
   
 
-this.Lbox = new Rectangle(this.sideBar.centerX-190, 9, 350, 90, 10, 10, {
+this.Lbox = new Rectangle(this.sideBar.centerX-190, 9, 320, 90, 10, 10, {
    // fill: 'black',
     stroke: 'white',
   });
   this.sideBar.addChild(this.Lbox)
 
-this.Tbox = new Rectangle(this.sideBar.centerX-190, 109, 350, 90, 10, 10, {
+this.Tbox = new Rectangle(this.sideBar.centerX-190, 109, 320, 90, 10, 10, {
    // fill: 'black',
     stroke: 'white',
   });
