@@ -7,7 +7,7 @@ init({
   name: "test_scenerystack2",
 
   // Version (will be shown in the About dialog)
-  version: "1.0.0",
+  version: "1.1.0",
 
   // The brand name used (should be the same as in brand.ts)
   brand: "made-with-scenerystack",
