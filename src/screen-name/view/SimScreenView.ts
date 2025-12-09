@@ -1,11 +1,12 @@
 import { ScreenView, ScreenViewOptions } from "scenerystack/sim";
 import { SimModel } from "../model/SimModel.js";
 import { ResetAllButton, MathSymbolFont, PhetFont, LightRaysNode } from "scenerystack/scenery-phet";
-import { Rectangle, Text, Image, Circle, Color, DragListener, RichText,  RadialGradient   } from "scenerystack/scenery";
-import { TextPushButton, SliderTickOptions } from "scenerystack/sun";
+import { Rectangle, Text, Image, Circle, Color, DragListener, RichText,  RadialGradient, Node, HBox   } from "scenerystack/scenery";
+import { TextPushButton, SliderTickOptions, OnOffSwitch, ToggleSwitch } from "scenerystack/sun";
 import { HSlider } from 'scenerystack/sun';
-import { DerivedProperty, Property } from 'scenerystack/axon'; 
+import { DerivedProperty, Property, BooleanProperty } from 'scenerystack/axon'; 
 import { Range, Vector2, Bounds2, Dimension2 } from 'scenerystack/dot'; 
+import { Shape } from 'scenerystack/kite';
 
 
 // Helper function to convert Kelvin to RGB values (0-255)
@@ -174,7 +175,7 @@ export class SimScreenView extends ScreenView {
 
   this.lumStar = new Circle(50, {
     fill: 'red',
-    bottom: this.sideBar.centerY + 185,
+    centerY: this.sideBar.centerY + 135,
     left: this.sideBar.centerX - 50, 
    // translation: this.imageHR.right,
   // bottom: this.imageHR.centerY + 400,
@@ -360,10 +361,11 @@ this.diagramStarXProperty.link( x => {
 
 
 //side star radius from SB
-  const sideStarRadiusMin = 5; //in code size units
-  const sideStarRadiusMax = 50; //in code size units
+  const sideStarRadiusMin = 1; //in code size units
+  const sideStarRadiusMax = 30; //in code size units
   const HRStarRadiusMin = .0001; //in Rsun
-  const HRStarRadiusMax = 6400; //in Rsun
+  //const HRStarRadiusMax = 6400; //in Rsun
+  const HRStarRadiusMax = 3000; //in Rsun
   const Tsun = 5800;
   
 
@@ -594,6 +596,145 @@ this.Tbox = new Rectangle(this.sideBar.centerX-190, 109, 340, 90, 10, 10, {
     stroke: 'white',
   });
   this.sideBar.addChild(this.Tbox)
+
+
+//linear side star 
+
+  const linRMin = 1
+  const linRMax = 5000
+  
+  this.sideStarLinRadiusProperty = new DerivedProperty(
+    [this.colorProperty, this.lumLogProperty],
+    (temp, lum) =>{
+    //  R = (lum/(4*Math.PI*sigma_SB*T**4))**(1/2) 
+    const RInput = ((Tsun/temp)**2 )* ((10**lum)**(1/2)); //radius of star in solar units
+     
+    // Calculate the normalized position (0 to 1) of the input within the logarithmic input range
+    // This formula maps logInputMin to 0 and logInputMax to 1.
+    const normalizedPosition = (RInput - HRStarRadiusMin) / (HRStarRadiusMax - HRStarRadiusMin);
+
+    // Scale the normalized position to the desired output range
+    // This formula maps 0 to outputMin and 1 to outputMax.
+    const scaledValue = linRMin + (normalizedPosition  * (linRMax - linRMin));
+
+    // Return the scaled value. It should already be within the output range due to clamping,
+    // but an additional Math.min/max can be added here if stricter clamping is needed after calculation.
+    return scaledValue;
+    }
+  )
+
+const sunR = linRMin + (((1 - HRStarRadiusMin) / (HRStarRadiusMax - HRStarRadiusMin)) * (linRMax - linRMin))
+
+
+this.sideStarSun = new Circle(sunR, {
+  fill: new Color(kelvinToRgbValues(5800).r, kelvinToRgbValues(5800).g, kelvinToRgbValues(5800).b, 1),
+  centerY: this.sideBar.centerY + 147,
+  left:this.sideBar.centerX - 150, 
+  children:[
+  this.sunText = new RichText('Sun', {
+      center: new Vector2(0, 15),
+      font: new PhetFont(8),
+      scale: 2,
+     // font: 'bold 20px sans-serif',
+      fill: 'white',
+    } )
+  ]
+})
+this.sideBar.addChild(this.sideStarSun);
+
+
+
+const sideStarLinX =  this.sideBar.centerX - 65;
+
+this.sideStarLin = new Circle(10, {
+  fill: new Color(kelvinToRgbValues(5800).r, kelvinToRgbValues(5800).g, kelvinToRgbValues(5800).b, 1),
+  centerY: this.sideBar.centerY + 135,
+//  centerX: this.sideBar.centerX - 100, 
+  left: sideStarLinX,
+})
+//this.sideBar.addChild(this.sideStarLin);
+
+this.sideStarLinRadiusProperty.link((radius: number) => {
+      this.sideStarLin.radius = radius;
+      this.sideStarLin.x = sideStarLinX + radius ;
+     // this.sideStarLin.left = this.sideBar.centerX - 100;
+    });
+
+this.colorProperty.link(kelvin => {
+    const rgb = kelvinToRgbValues(kelvin);
+    this.sideStarLin.fill = new Color(rgb.r, rgb.g, rgb.b, 1); // Create a new Color object from the RGB values
+  });
+
+//boundary box for lin star
+
+const boxWidth = 380;
+const boxHeight = 250;
+
+const clippingContainer = new Node({
+    clipArea: Shape.rectangle(this.sideBar.left + 10, this.sideBar.bottom - boxHeight -10, boxWidth, boxHeight)
+});
+
+clippingContainer.addChild(this.sideStarLin);
+
+const visualBorder = new Rectangle(this.sideBar.left + 10, this.sideBar.bottom - boxHeight -10, boxWidth, boxHeight, {
+    stroke: 'white',
+    lineWidth: 1,
+    pickable: false // Let clicks pass through to the star
+});
+
+this.addChild(clippingContainer);
+this.addChild(visualBorder);
+
+//clippingContainer.addChild(this.sideStarLin);
+
+//toggle sidestar radius log/linear 
+
+const showLogRProperty = new BooleanProperty(true);
+
+// Link the property to the circle's visibility
+showLogRProperty.link( ( visible ) => {
+    this.sideStar.visible = visible;
+});
+
+// Link the property to the circle's visibility
+showLogRProperty.link( ( visible ) => {
+    this.lumStar.visible = visible;
+});
+
+showLogRProperty.link( ( visible ) => {
+    this.sideStarSun.visible = !visible;
+});
+
+showLogRProperty.link( ( visible ) => {
+    this.sideStarLin.visible = !visible;
+});
+
+//this.visibilitySwitch = new OnOffSwitch( showLogRProperty, {
+this.visibilitySwitch = new ToggleSwitch( showLogRProperty, false, true, {
+    trackOnFill: '#4c9bba',   // Blue when 'On' (instead of default green)
+    trackOffFill:  '#e5e5e5',  // Grey when 'Off'
+    thumbFill: 'white',
+    size: new Dimension2( 40, 20 ), // Optional: adjust size
+    thumbTouchAreaXDilation: 10 ,    // Optional: make it easier to grab on touch screens
+} );
+
+//this.addChild( this.visibilitySwitch );
+
+const leftLabel = new Text( 'R', { font: new PhetFont(8), scale: 2, fill: 'white' } );
+const rightLabel = new Text( 'Log(R)', { font: new PhetFont(8), scale: 2, fill: 'white'} );
+
+// 2. Put them in an HBox with your existing switch
+const labeledSwitch = new HBox( {
+    bottom: this.sideBar.bottom - 15,
+    left: this.sideBar.left + 15, 
+    children: [ leftLabel, this.visibilitySwitch, rightLabel ],
+    spacing: 7, // Space between items
+    align: 'center' // Vertically align text with the switch
+} );
+
+// 3. Add the HBox to the scene instead of just the switch
+this.addChild( labeledSwitch );
+
 
 
 
