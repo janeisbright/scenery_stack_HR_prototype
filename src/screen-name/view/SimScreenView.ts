@@ -60,17 +60,26 @@ function kelvinToRgbValues(kelvin: number): { r: number; g: number; b: number } 
 export class SimScreenView extends ScreenView {
 
   private plotBox: Rectangle; 
+  private Lbox: Rectangle;
+  private Tbox: Rectangle;
+  private blackBox: Rectangle;
   private imageHR: Image;
   private diagramStar: Circle;
   private lumStar: Circle;
   //private rays: LightRaysNode;
   private sideBar: Rectangle;
   private sideStar: Circle;
+  private sideStarSun: Circle;
+  private sideStarLin: Circle;
+  private sunText: RichText;
+  private visibilitySwitch: ToggleSwitch<boolean>;
+  private downloadButton: TextPushButton;
   private TText: RichText;
   private LText: RichText;
   private RText: RichText;
   private starPositionProperty: Property<Vector2>;
   private colorProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
+  private sideStarLinRadiusProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
   private lumLogProperty: Property<number>; 
   private diagramStarXProperty: Property<number>; 
   private logTProperty: Property<number>; 
@@ -711,8 +720,8 @@ showLogRProperty.link( ( visible ) => {
 
 //this.visibilitySwitch = new OnOffSwitch( showLogRProperty, {
 this.visibilitySwitch = new ToggleSwitch( showLogRProperty, false, true, {
-    trackOnFill: '#4c9bba',   // Blue when 'On' (instead of default green)
-    trackOffFill:  '#e5e5e5',  // Grey when 'Off'
+ //   trackOnFill: '#4c9bba',   // Blue when 'On' (instead of default green)
+  //  trackOffFill:  '#e5e5e5',  // Grey when 'Off'
     thumbFill: 'white',
     size: new Dimension2( 40, 20 ), // Optional: adjust size
     thumbTouchAreaXDilation: 10 ,    // Optional: make it easier to grab on touch screens
@@ -735,7 +744,20 @@ const labeledSwitch = new HBox( {
 // 3. Add the HBox to the scene instead of just the switch
 this.addChild( labeledSwitch );
 
+this.downloadButton = new TextPushButton( 'Open Worksheet', {
+    font: new PhetFont( 14 ),
+    baseColor: '#65a8e6', // PhET Blue
+    listener: () => {
+        // This opens the PDF in a new tab, which the browser handles as a download/view
+        // Replace with your local relative path or a hosted URL
+        window.open( 'public/images/HR_simulation_worksheet.pdf', '_blank' ); 
+    },
+    // Position it
+    left: 840,
+    bottom: 600
+} );
 
+this.addChild( this.downloadButton );
 
 
   /*

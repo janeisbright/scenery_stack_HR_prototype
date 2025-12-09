@@ -12,7 +12,8 @@ const Brand: TBrand = {
 
   // Optional string for the name of the brand.  If non-null, the brand name will appear in the top of the About dialog
   // {string} For example: "My Company"
-  name: null,
+ // name: null,
+  name: "Author: Dr. Jane C. Bright",
 
   // Optional string for the copyright statement.  If non-null, it will appear in the About dialog
   // {string} For example: "Copyright © 2014, My Company"
@@ -22,6 +23,7 @@ const Brand: TBrand = {
    * Return any links to appear in the About dialog.  The sim name and locale can be used for customization if desired.
    * For example: { textStringProperty: new Property( "My Company Support" ), url: "https://www.mycompany.com/support" }
    */
+
   getLinks: function () {
     return [];
   },
