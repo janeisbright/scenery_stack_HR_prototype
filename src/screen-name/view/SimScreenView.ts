@@ -735,7 +735,20 @@ const labeledSwitch = new HBox( {
 // 3. Add the HBox to the scene instead of just the switch
 this.addChild( labeledSwitch );
 
+this.downloadButton = new TextPushButton( 'Open Worksheet', {
+    font: new PhetFont( 14 ),
+    baseColor: '#65a8e6', // PhET Blue
+    listener: () => {
+        // This opens the PDF in a new tab, which the browser handles as a download/view
+        // Replace with your local relative path or a hosted URL
+        window.open( 'public/images/HR_simulation_worksheet.pdf', '_blank' ); 
+    },
+    // Position it
+    left: 840,
+    bottom: 600
+} );
 
+this.addChild( this.downloadButton );
 
 
   /*
