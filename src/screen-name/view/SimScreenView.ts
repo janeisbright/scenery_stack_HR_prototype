@@ -3,7 +3,7 @@ import { SimModel } from "../model/SimModel.js";
 import { ResetAllButton, MathSymbolFont, PhetFont, LightRaysNode } from "scenerystack/scenery-phet";
 import { Rectangle, Text, Image, Circle, Color, DragListener, RichText,  RadialGradient, Node, HBox   } from "scenerystack/scenery";
 import { TextPushButton, SliderTickOptions, OnOffSwitch, ToggleSwitch } from "scenerystack/sun";
-import { HSlider } from 'scenerystack/sun';
+import { HSlider, Checkbox } from 'scenerystack/sun';
 import { DerivedProperty, Property, BooleanProperty } from 'scenerystack/axon'; 
 import { Range, Vector2, Bounds2, Dimension2 } from 'scenerystack/dot'; 
 import { Shape } from 'scenerystack/kite';
@@ -120,8 +120,61 @@ export class SimScreenView extends ScreenView {
     this.imageHR = new Image('images/HR.jpg',{
       scale: 0.45,
      // scale: 0.36,
+    
     });
     this.addChild(this.imageHR);
+
+  
+    this.imageHR = new Image('images/HR_diagram_thermal_stars.png',{
+      scale: 0.25,
+     // opacity: 0.5,
+      left: -18,
+      top: -20,
+     // scale: 0.36,
+    });
+    this.addChild(this.imageHR);
+
+    this.giantText = new RichText('Giants', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+     // center: new Vector2(550, 165),
+      center: new Vector2(520, 150),
+      font: new PhetFont(12),
+      scale: 2,
+     // font: 'bold 20px sans-serif',
+      fill: 'white'
+    } )
+
+    this.addChild(this.giantText);
+
+    this.WDText = new RichText('White Dwarfs', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+      center: new Vector2(250, 480),
+      font: new PhetFont(12),
+      scale: 2,
+     // font: 'bold 20px sans-serif',
+      fill: 'white'
+    } )
+
+   this.addChild(this.WDText);
+
+   this.MSText = new RichText('Main Sequence', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+      center: new Vector2(350, 300),
+      rotation: .7,
+      font: new PhetFont(12),
+      scale: 2,
+     // font: 'bold 20px sans-serif',
+      fill: 'white'
+    } )
+
+   this.addChild(this.MSText);
+    
 
     this.layout(this.layoutBounds);
 
@@ -131,8 +184,10 @@ export class SimScreenView extends ScreenView {
   // frame of plot (bounds of where diagram star should be)
 
   this.plotBox = new Rectangle(75, 10, 490, 490, {
+ // this.plotBox = new Rectangle(95, 40, 495, 495, {
    // fill: 'white',
-   // stroke: 'green',
+   
+  // stroke: 'green',
   });
   this.addChild(this.plotBox)
 
@@ -148,6 +203,7 @@ export class SimScreenView extends ScreenView {
 
   this.diagramStar = new Circle( 25, {
   fill: 'yellow',
+  stroke: "black",
  // cursor: 'pointer',
   //translation: this.imageHR.center,
   center: Vector2.ZERO,
@@ -695,6 +751,35 @@ this.addChild(clippingContainer);
 this.addChild(visualBorder);
 
 //clippingContainer.addChild(this.sideStarLin);
+
+
+const showLabelsProperty = new BooleanProperty(false);
+
+showLabelsProperty.link( ( visible ) => {
+    this.MSText.visible = visible;
+});
+
+showLabelsProperty.link( ( visible ) => {
+    this.WDText.visible = visible;
+});
+
+showLabelsProperty.link( ( visible ) => {
+    this.giantText.visible = visible;
+});
+
+this.labelCheckbox = new Checkbox (
+    showLabelsProperty,      // The property to control 
+    new Text( 'Show Labels', { font: new PhetFont( 14 ), fill: 'white' } ), // The text NEXT to the box
+    {
+        // Optional positioning
+        left: this.sideBar.left ,
+        bottom: this.sideBar.bottom + 25,
+        boxWidth: 15, // Size of the square box
+        checkboxColor: '#65a8e6',
+    } 
+);
+
+this.addChild( this.labelCheckbox );
 
 //toggle sidestar radius log/linear 
 
