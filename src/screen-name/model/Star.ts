@@ -5,7 +5,7 @@
  * @author Agustín Vallejo
  */
 
-export class Star{
+export default class Star{
 
   // Temperature in Kelvin
   private _temperature: number;
@@ -60,25 +60,3 @@ export class Star{
 
   }
 }
-
-
-/** 
-export class Star_Basic {
-
-  // Temperature in Kelvin
-  public temperature: number;
-
-  //Luminosity in solar luminosities
-  public luminosity: number;
-  
-  // Radius in solar radii
-  public radius: number;
-
-  public constructor() {
-    this.temperature = 5800;
-    this.luminosity = 1;
-    this.radius = 1;
-
-  }
-}
-*/
