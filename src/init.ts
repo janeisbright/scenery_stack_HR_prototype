@@ -1,10 +1,10 @@
-import { init, madeWithSceneryStackSplashDataURI } from "scenerystack/init";
+import { init, madeWithSceneryStackSplashDataURI } from 'scenerystack/init';
 
 // Initialize values that will be used at import-time by other modules.
 // This needs to happen first, so we have init.ts => assert.ts => splash.ts => brand.ts => everything else (in main.ts)
 init({
   // Internal name of the simulation.
-  name: "test_scenerystack2",
+  name: "stellar-evolution",
 
   // Version (will be shown in the About dialog)
   version: "1.1.0",

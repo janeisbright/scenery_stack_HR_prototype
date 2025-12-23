@@ -1,82 +1,36 @@
 import { ScreenView, ScreenViewOptions } from "scenerystack/sim";
 import { SimModel } from "../model/SimModel.js";
 import { ResetAllButton, MathSymbolFont, PhetFont, LightRaysNode } from "scenerystack/scenery-phet";
-import { Rectangle, Text, Image, Circle, Color, DragListener, RichText,  RadialGradient, Node, HBox   } from "scenerystack/scenery";
+import { Rectangle, Text, Image, Circle, Color, DragListener, RichText, RadialGradient, Node, HBox } from "scenerystack/scenery";
 import { TextPushButton, SliderTickOptions, OnOffSwitch, ToggleSwitch } from "scenerystack/sun";
-import { HSlider } from 'scenerystack/sun';
+import { HSlider, Checkbox } from 'scenerystack/sun';
 import { DerivedProperty, Property, BooleanProperty } from 'scenerystack/axon'; 
 import { Range, Vector2, Bounds2, Dimension2 } from 'scenerystack/dot'; 
 import { Shape } from 'scenerystack/kite';
-
-
-// Helper function to convert Kelvin to RGB values (0-255)
-// Adapted from https://andi-siess.de/rgb-to-color-temperature/, https://tannerhelland.com/2012/09/18/convert-temperature-rgb-algorithm-code.html
-function kelvinToRgbValues(kelvin: number): { r: number; g: number; b: number } {
-  // Helper to clamp values between min and max
-  const clamp = (value: number, min: number, max: number): number => {
-    return Math.max(min, Math.min(value, max));
-  };
-
-  // Convert Kelvin to a 'temp' scale used by the algorithm
-  const temp = kelvin / 100;
-  let red: number, green: number, blue: number;
-
-  // --- Calculate Red ---
-  if (temp < 66) {
-    red = 255;
-  } else {
-    red = temp - 60;
-    red = 325.4494129 * Math.pow(red, -0.1332047592);
-    red = Math.round(red);
-  }
-
-  // --- Calculate Green ---
-  if (temp < 66) {
-    green = temp;
-    green = 99.4708025861 * Math.log(green) - 161.1195681661;
-    green = Math.round(green);
-  } else {
-    green = temp - 60;
-    green = 288.1221695283 * Math.pow(green, -0.0755148492);
-    green = Math.round(green);
-  }
-
-  // --- Calculate Blue ---
-  if (temp >= 66) {
-    blue = 255;
-  } else if (temp <= 19) {
-    blue = 0;
-  } else {
-    blue = temp - 10;
-    blue = 138.5177312231 * Math.log(blue) - 305.0447927307;
-    blue = Math.round(blue);
-  }
-
-  // Clamp all values to the 0-255 range and return
-  return { r: clamp(red, 0, 255), g: clamp(green, 0, 255), b: clamp(blue, 0, 255) };
-}
-
+import kelvinToRgbValues from './kelvinToRgbValues.js';
 
 export class SimScreenView extends ScreenView {
 
   private plotBox: Rectangle; 
-  private Lbox: Rectangle;
-  private Tbox: Rectangle;
-  private blackBox: Rectangle;
+ //  private blackBox: Rectangle;
   private imageHR: Image;
   private diagramStar: Circle;
   private lumStar: Circle;
-  //private rays: LightRaysNode;
+
+  // Sidebar
   private sideBar: Rectangle;
-  private sideStar: Circle;
-  private sideStarSun: Circle;
-  private sideStarLin: Circle;
-  private sunText: RichText;
+
+  // Control Panel (Sliders)
+  private Lbox: Rectangle;
+  private Tbox: Rectangle;
   private visibilitySwitch: ToggleSwitch<boolean>;
   private downloadButton: TextPushButton;
   private TText: RichText;
   private LText: RichText;
-  private RText: RichText;
+  private giantText: RichText;
+  private WDText: RichText;
+  private MSText: RichText;
+  private labelCheckbox: Checkbox;
   private starPositionProperty: Property<Vector2>;
   private colorProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
   private sideStarLinRadiusProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
@@ -91,6 +45,16 @@ export class SimScreenView extends ScreenView {
   private tempSlider: HSlider; 
   private lumSlider: HSlider; 
 
+  // Equation Panel
+  private RText: RichText;
+
+  // Star Panel
+  private sideStar: Circle;
+  //private rays: LightRaysNode;
+  private sideStarSun: Circle;
+  private sideStarLin: Circle;
+  private sunText: RichText;
+
 
   public constructor(model: SimModel, options?: ScreenViewOptions) {
     super(options);
@@ -98,7 +62,7 @@ export class SimScreenView extends ScreenView {
 
     // Sample Content
 
-        // Create a new Rectangle node that will act as the background.
+    // Create a new Rectangle node that will act as the background.
     const background = new Rectangle(
       this.layoutBounds.left,
       this.layoutBounds.top,
@@ -116,38 +80,95 @@ export class SimScreenView extends ScreenView {
     // This ensures that all other nodes are drawn on top of it.
     this.addChild(background);
 
-
+/** 
     this.imageHR = new Image('images/HR.jpg',{
       scale: 0.45,
      // scale: 0.36,
+    
     });
     this.addChild(this.imageHR);
+*/
+  
+    this.imageHR = new Image('images/HR_diagram_thermal_stars_cropped.png',{
+      scale: 0.25,
+     // opacity: 0.5,
+      left: -15,
+      top: -10,
+     // scale: 0.36,
+    });
+    this.addChild(this.imageHR);
+
+    this.giantText = new RichText('Giants', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+     // center: new Vector2(550, 165),
+      center: new Vector2(520, 130),
+      font: new PhetFont(12),
+      scale: 2,
+     // font: 'bold 20px sans-serif',
+      fill: 'white'
+    } )
+
+    this.addChild(this.giantText);
+
+    this.WDText = new RichText('White Dwarfs', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+      center: new Vector2(250, 470),
+      font: new PhetFont(12),
+      scale: 2,
+     // font: 'bold 20px sans-serif',
+      fill: 'white'
+    } )
+
+   this.addChild(this.WDText);
+
+   this.MSText = new RichText('Main Sequence', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+      center: new Vector2(350, 300),
+      rotation: .7,
+      font: new PhetFont(12),
+      scale: 2,
+     // font: 'bold 20px sans-serif',
+      fill: 'white'
+    } )
+
+   this.addChild(this.MSText);
+    
 
     this.layout(this.layoutBounds);
 
     console.log('SimScreenView initialized with left half image!');
 
 
-  // frame of plot (bounds of where diagram star should be)
+    // frame of plot (bounds of where diagram star should be)
 
-  this.plotBox = new Rectangle(75, 10, 490, 490, {
+  this.plotBox = new Rectangle(80, 15, 490, 490, {
+ // this.plotBox = new Rectangle(95, 40, 495, 495, {
    // fill: 'white',
-   // stroke: 'green',
+   
+   //stroke: 'green',
   });
   this.addChild(this.plotBox)
 
+  /**
   this.blackBox = new Rectangle(405, 410, 100, 20, 9, 9, {
     fill: 'black',
   //  stroke: 'white',
   });
   this.plotBox.addChild(this.blackBox)
+*/
 
 
-
-  // diagram star
+    // diagram star
 
   this.diagramStar = new Circle( 25, {
   fill: 'yellow',
+  stroke: "black",
  // cursor: 'pointer',
   //translation: this.imageHR.center,
   center: Vector2.ZERO,
@@ -161,188 +182,188 @@ export class SimScreenView extends ScreenView {
   } );
   this.plotBox.addChild(this.diagramStar);
 
-  this.starPositionProperty = new Property( new Vector2(100, 150 ) );
-  this.starPositionProperty.link( position => this.diagramStar.translation = position );
+    this.starPositionProperty = new Property(new Vector2(100, 150));
+    this.starPositionProperty.link(position => this.diagramStar.translation = position);
 
-  this.diagramStar.addInputListener( new DragListener( {
- //  positionProperty: this.starPositionProperty,
-   dragBoundsProperty: new Property( this.plotBox.bounds.eroded( 30 ) )
-  } ) );
-
-
-
-  // sidebar star and sliders: 
-
-  this.sideBar = new Rectangle(.6*this.layoutBounds.maxX, 5, 400, 550, {
-    fill: 'black',
-    stroke: 'white',
-  });
-  this.addChild(this.sideBar)
+    this.diagramStar.addInputListener(new DragListener({
+      //  positionProperty: this.starPositionProperty,
+      dragBoundsProperty: new Property(this.plotBox.bounds.eroded(30))
+    }));
 
 
-  //sidebar star and lum star
 
-  this.lumStar = new Circle(50, {
-    fill: 'red',
-    centerY: this.sideBar.centerY + 135,
-    left: this.sideBar.centerX - 50, 
-   // translation: this.imageHR.right,
-  // bottom: this.imageHR.centerY + 400,
-  // left: this.imageHR.right+ 500,
- // bottom: this.layoutBounds.bottom - 100, 
-//  right: this.layoutBounds.right - 200, 
-  children: [this.sideStar = new Circle(20, {
-  fill: 'orange',
-   // translation: this.imageHR.right,
-  center: Vector2.ZERO,
-  })
-  ]
-  });
-  this.sideBar.addChild(this.lumStar);
+    // sidebar star and sliders: 
+
+    this.sideBar = new Rectangle(.6 * this.layoutBounds.maxX, 5, 400, 550, {
+      fill: 'black',
+      stroke: 'white',
+    });
+    this.addChild(this.sideBar)
 
 
-  
+    //sidebar star and lum star
+
+    this.lumStar = new Circle(50, {
+      fill: 'red',
+      centerY: this.sideBar.centerY + 135,
+      left: this.sideBar.centerX - 50,
+      // translation: this.imageHR.right,
+      // bottom: this.imageHR.centerY + 400,
+      // left: this.imageHR.right+ 500,
+      // bottom: this.layoutBounds.bottom - 100, 
+      //  right: this.layoutBounds.right - 200, 
+      children: [this.sideStar = new Circle(20, {
+        fill: 'orange',
+        // translation: this.imageHR.right,
+        center: Vector2.ZERO,
+      })
+      ]
+    });
+    this.sideBar.addChild(this.lumStar);
 
 
-  // temperature (color) slider 
-
-  const minTemp = 2500;
-  const maxTemp = 40000;
-  const tempRange = new Range(minTemp, maxTemp); // Define the range of the slider
-
-  const minLogT = Math.log10(minTemp);
-  const maxLogT = Math.log10(maxTemp);
-  const logTempRange = new Range(minLogT, maxLogT);
-
-  this.logTProperty = new Property(4);
-
-  this.colorProperty = new DerivedProperty(
-    [this.logTProperty],
-        () =>{ 
-      return 10**this.logTProperty.value;
-    }
-  )
-
-  this.colorProperty.link(kelvin => {
-    const rgb = kelvinToRgbValues(kelvin);
-    this.sideStar.fill = new Color(rgb.r, rgb.g, rgb.b, 1); // Create a new Color object from the RGB values
-  });
-
-  this.colorProperty.link(kelvin => {
-    const rgb = kelvinToRgbValues(kelvin);
-    this.diagramStar.fill = new Color(rgb.r, rgb.g, rgb.b, 1); // Create a new Color object from the RGB values
-  });
 
 
-// make lumstar have a opacity gradient:
 
-const createRadialFadePaint = (r: number, g: number, b: number, radius: number) => {
-    // Defines a concentric gradient, starting at radius 0 and ending at 'radius'.
-    const fadeGradient = new RadialGradient(
+    // temperature (color) slider 
+
+    const minTemp = 2500;
+    const maxTemp = 40000;
+    const tempRange = new Range(minTemp, maxTemp); // Define the range of the slider
+
+    const minLogT = Math.log10(minTemp);
+    const maxLogT = Math.log10(maxTemp);
+    const logTempRange = new Range(minLogT, maxLogT);
+
+    this.logTProperty = new Property(4);
+
+    this.colorProperty = new DerivedProperty(
+      [this.logTProperty],
+      () => {
+        return 10 ** this.logTProperty.value;
+      }
+    )
+
+    this.colorProperty.link(kelvin => {
+      const rgb = kelvinToRgbValues(kelvin);
+      this.sideStar.fill = new Color(rgb.r, rgb.g, rgb.b, 1); // Create a new Color object from the RGB values
+    });
+
+    this.colorProperty.link(kelvin => {
+      const rgb = kelvinToRgbValues(kelvin);
+      this.diagramStar.fill = new Color(rgb.r, rgb.g, rgb.b, 1); // Create a new Color object from the RGB values
+    });
+
+
+    // make lumstar have a opacity gradient:
+
+    const createRadialFadePaint = (r: number, g: number, b: number, radius: number) => {
+      // Defines a concentric gradient, starting at radius 0 and ending at 'radius'.
+      const fadeGradient = new RadialGradient(
         0, 0, 0,        // Inner circle (center at 0,0, radius 0)
         0, 0, radius    // Outer circle (center at 0,0, radius 'radius')
-    );
+      );
 
-    // Color strings using the determined RGB values
-    const opaqueColor = `rgba(${r}, ${g}, ${b}, 1)`; // Alpha = 1 (Opaque)
-    const transparentColor = `rgba(${r}, ${g}, ${b}, 0)`; // Alpha = 0 (Transparent)
+      // Color strings using the determined RGB values
+      const opaqueColor = `rgba(${r}, ${g}, ${b}, 1)`; // Alpha = 1 (Opaque)
+      const transparentColor = `rgba(${r}, ${g}, ${b}, 0)`; // Alpha = 0 (Transparent)
 
-    // Stop 1: Center is fully opaque
-    fadeGradient.addColorStop(0.0, opaqueColor);
+      // Stop 1: Center is fully opaque
+      fadeGradient.addColorStop(0.0, opaqueColor);
 
-    // Stop 2: Edge is fully transparent, creating the fade effect
-    // NOTE: For a sharper edge, you can use: fadeGradient.addColorStop(0.9, opaqueColor);
-    fadeGradient.addColorStop(1.0, transparentColor);
+      // Stop 2: Edge is fully transparent, creating the fade effect
+      // NOTE: For a sharper edge, you can use: fadeGradient.addColorStop(0.9, opaqueColor);
+      fadeGradient.addColorStop(1.0, transparentColor);
 
-    return fadeGradient;
-}
- 
-// updateLumStarAppearance lower in code afer lumStarRadiusProperty is defined
+      return fadeGradient;
+    }
 
-
-// diagram star x position
-
-this.diagramStarXProperty = new Property(this.plotBox.left + 30)
-
-this.diagramStarXProperty.link( x => {
-    this.diagramStar.x = x; 
-} );
+    // updateLumStarAppearance lower in code afer lumStarRadiusProperty is defined
 
 
-  // have the temperature slider move the diagram star 
+    // diagram star x position
 
-  this.colorProperty.link(kelvin => {
-    const temp = kelvin;
-  //  scaled_value = 1 - (log(kelvin / minTemp) / log(maxTemp/ minTemp))
-   // this.diagramStar.x =this.plotBox.right -( kelvin/maxTemp * this.plotBox.width) - 25;
-   // this.diagramStar.x = this.plotBox.left + 30 + (this.plotBox.width - 60) * (1 - (Math.log(temp/ minTemp) / Math.log(maxTemp/ minTemp)));
-    this.diagramStarXProperty.set(this.plotBox.left + 30 + (this.plotBox.width - 60) * (1 - (Math.log(temp/ minTemp) / Math.log(maxTemp/ minTemp))));
-  });
+    this.diagramStarXProperty = new Property(this.plotBox.left + 30)
+
+    this.diagramStarXProperty.link(x => {
+      this.diagramStar.x = x;
+    });
 
 
-  this.diagramStarXProperty.link(x => {
-    const c = this.plotBox.left + 30 + (this.plotBox.width - 60);
-   // this.logTProperty.set(600*x);
-   // this.logTProperty.set((1-(x/c)) * Math.log(maxTemp/ minTemp) + Math.log(minTemp)   );
+    // have the temperature slider move the diagram star 
 
-  })
-
-
-  this.tempSlider = new HSlider(this.logTProperty,  logTempRange, {
-            // Options for the slider's appearance and behavior
-    //  trackSize: 5, // Thickness of the slider track
-   //   thumbSize: 20, // Size of the movable thumb
-    //  orientation: 'horizontal', // 'horizontal' or 'vertical'
-            // Positioning the slider
-  //  isLogarithmic: true,
- //   left: this.imageHR.right +100,
- //   bottom: this.imageHR.centerY + 50, 
-  // centerTop: this.sideBar.centerTop,
-  trackSize: new Dimension2(250, 4),
-  bottom: this.sideBar.centerY- 20,
-  left: this.sideBar.centerX - 180, 
-  children: [
-    this.TText = new RichText('Temperature', {
-     // centerBottom: Vector2.ZERO,
-    //  left: this.imageHR.right +100,
-    //  bottom: this.imageHR.centerY + 10, 
-      center: new Vector2(50, 50),
-      font: new PhetFont(12),
-      scale: 2,
-     // font: 'bold 20px sans-serif',
-      fill: 'white'
-    } ),
-    this.RText = new RichText( 'Radius = ', {
-     // centerBottom: Vector2.ZERO,
-    //  left: this.imageHR.right +100,
-    //  bottom: this.imageHR.centerY + 10, 
-      center: new Vector2(50, 120),
-     // font: 'bold 20px sans-serif',
-      font: new PhetFont(12),
-      scale: 2,
-      fill: 'white'
-    } )    
-  ]
-      });
-  
-
-  this.sideBar.addChild(this.tempSlider); // Add the slider to the view
+    this.colorProperty.link(kelvin => {
+      const temp = kelvin;
+      //  scaled_value = 1 - (log(kelvin / minTemp) / log(maxTemp/ minTemp))
+      // this.diagramStar.x =this.plotBox.right -( kelvin/maxTemp * this.plotBox.width) - 25;
+      // this.diagramStar.x = this.plotBox.left + 30 + (this.plotBox.width - 60) * (1 - (Math.log(temp/ minTemp) / Math.log(maxTemp/ minTemp)));
+      this.diagramStarXProperty.set(this.plotBox.left + 30 + (this.plotBox.width - 60) * (1 - (Math.log(temp / minTemp) / Math.log(maxTemp / minTemp))));
+    });
 
 
+    this.diagramStarXProperty.link(x => {
+      const c = this.plotBox.left + 30 + (this.plotBox.width - 60);
+      // this.logTProperty.set(600*x);
+      // this.logTProperty.set((1-(x/c)) * Math.log(maxTemp/ minTemp) + Math.log(minTemp)   );
+
+    })
 
 
-  // luminosity star radius slider 
+    this.tempSlider = new HSlider(this.logTProperty, logTempRange, {
+      // Options for the slider's appearance and behavior
+      //  trackSize: 5, // Thickness of the slider track
+      //   thumbSize: 20, // Size of the movable thumb
+      //  orientation: 'horizontal', // 'horizontal' or 'vertical'
+      // Positioning the slider
+      //  isLogarithmic: true,
+      //   left: this.imageHR.right +100,
+      //   bottom: this.imageHR.centerY + 50, 
+      // centerTop: this.sideBar.centerTop,
+      trackSize: new Dimension2(250, 4),
+      bottom: this.sideBar.centerY - 20,
+      left: this.sideBar.centerX - 180,
+      children: [
+        this.TText = new RichText('Temperature', {
+          // centerBottom: Vector2.ZERO,
+          //  left: this.imageHR.right +100,
+          //  bottom: this.imageHR.centerY + 10, 
+          center: new Vector2(50, 50),
+          font: new PhetFont(12),
+          scale: 2,
+          // font: 'bold 20px sans-serif',
+          fill: 'white'
+        }),
+        this.RText = new RichText('Radius = ', {
+          // centerBottom: Vector2.ZERO,
+          //  left: this.imageHR.right +100,
+          //  bottom: this.imageHR.centerY + 10, 
+          center: new Vector2(50, 120),
+          // font: 'bold 20px sans-serif',
+          font: new PhetFont(12),
+          scale: 2,
+          fill: 'white'
+        })
+      ]
+    });
 
-  
+
+    this.sideBar.addChild(this.tempSlider); // Add the slider to the view
 
 
-  // side star radius
 
-  
-  //this.lumExtensionProperty = new Property(20);
+
+    // luminosity star radius slider 
+
+
+
+
+    // side star radius
+
+
+    //this.lumExtensionProperty = new Property(20);
 
   const lumMin = -4.1; //log lum in solar lums
-  const lumMax = 5.5; 
+  const lumMax = 5.7; 
 //  const lumMin = .0001;
  // const lumMax = 1000000; 
 //  const lumMin = 10;
@@ -353,78 +374,78 @@ this.diagramStarXProperty.link( x => {
   const lumExtensionMin = 10;
   const lumExtensionMax = 100;
 
-  this.lumLogProperty = new Property(3);
+    this.lumLogProperty = new Property(3);
 
-  this.lumExtensionProperty = new DerivedProperty(
-    [this.lumLogProperty],
-    (loglum) =>{
-    const normalizedLum = (loglum - lumMin) / (lumMax - lumMin);
-    const scaledValue = lumExtensionMin + normalizedLum * (lumExtensionMax -lumExtensionMin);
+    this.lumExtensionProperty = new DerivedProperty(
+      [this.lumLogProperty],
+      (loglum) => {
+        const normalizedLum = (loglum - lumMin) / (lumMax - lumMin);
+        const scaledValue = lumExtensionMin + normalizedLum * (lumExtensionMax - lumExtensionMin);
 
-    return scaledValue;
-}
-  )
-
-
-//  this.sideStarRadiusProperty = new Property(20);
+        return scaledValue;
+      }
+    )
 
 
-//side star radius from SB
-  const sideStarRadiusMin = 1; //in code size units
-  const sideStarRadiusMax = 30; //in code size units
-  const HRStarRadiusMin = .0001; //in Rsun
-  //const HRStarRadiusMax = 6400; //in Rsun
-  const HRStarRadiusMax = 3000; //in Rsun
-  const Tsun = 5800;
-  
+    //  this.sideStarRadiusProperty = new Property(20);
 
 
-  
-  this.sideStarRadiusProperty = new DerivedProperty(
-    [this.colorProperty, this.lumLogProperty],
-    (temp, lum) =>{
-    //  R = (lum/(4*Math.PI*sigma_SB*T**4))**(1/2) 
-    const RInput = ((Tsun/temp)**2 )* ((10**lum)**(1/2)); //radius of star in solar units
-     
-    // Calculate the normalized position (0 to 1) of the input within the logarithmic input range
-    // This formula maps logInputMin to 0 and logInputMax to 1.
-    const normalizedLogPosition = (Math.log(RInput) - Math.log(HRStarRadiusMin)) / (Math.log(HRStarRadiusMax) - Math.log(HRStarRadiusMin));
-
-    // Scale the normalized position to the desired output range
-    // This formula maps 0 to outputMin and 1 to outputMax.
-    const scaledValue = sideStarRadiusMin + (normalizedLogPosition * (sideStarRadiusMax - sideStarRadiusMin));
-
-    // Return the scaled value. It should already be within the output range due to clamping,
-    // but an additional Math.min/max can be added here if stricter clamping is needed after calculation.
-    return scaledValue;
-    }
-  )
+    //side star radius from SB
+    const sideStarRadiusMin = 1; //in code size units
+    const sideStarRadiusMax = 30; //in code size units
+    const HRStarRadiusMin = .0001; //in Rsun
+    //const HRStarRadiusMax = 6400; //in Rsun
+    const HRStarRadiusMax = 3000; //in Rsun
+    const Tsun = 5800;
 
 
-//old side star radius 
-/*
-  this.sideStarRadiusProperty = new DerivedProperty(
-    [this.colorProperty, this.lumExtensionProperty],
-    (temp, lum) =>{
-      return 10000* lum/temp;
-    }
-  )
-*/
 
 
-  this.lumStarRadiusProperty = new DerivedProperty(
-    [this.sideStarRadiusProperty, this.lumExtensionProperty],
-    () =>{
-      // add scaling to go from solar lums to size of extension 
-      return this.sideStarRadiusProperty.value + this.lumExtensionProperty.value;
-    }
-  )
+    this.sideStarRadiusProperty = new DerivedProperty(
+      [this.colorProperty, this.lumLogProperty],
+      (temp, lum) => {
+        //  R = (lum/(4*Math.PI*sigma_SB*T**4))**(1/2) 
+        const RInput = ((Tsun / temp) ** 2) * ((10 ** lum) ** (1 / 2)); //radius of star in solar units
 
-  this.sideStarRadiusProperty.link((radius: number) => {
+        // Calculate the normalized position (0 to 1) of the input within the logarithmic input range
+        // This formula maps logInputMin to 0 and logInputMax to 1.
+        const normalizedLogPosition = (Math.log(RInput) - Math.log(HRStarRadiusMin)) / (Math.log(HRStarRadiusMax) - Math.log(HRStarRadiusMin));
+
+        // Scale the normalized position to the desired output range
+        // This formula maps 0 to outputMin and 1 to outputMax.
+        const scaledValue = sideStarRadiusMin + (normalizedLogPosition * (sideStarRadiusMax - sideStarRadiusMin));
+
+        // Return the scaled value. It should already be within the output range due to clamping,
+        // but an additional Math.min/max can be added here if stricter clamping is needed after calculation.
+        return scaledValue;
+      }
+    )
+
+
+    //old side star radius 
+    /*
+      this.sideStarRadiusProperty = new DerivedProperty(
+        [this.colorProperty, this.lumExtensionProperty],
+        (temp, lum) =>{
+          return 10000* lum/temp;
+        }
+      )
+    */
+
+
+    this.lumStarRadiusProperty = new DerivedProperty(
+      [this.sideStarRadiusProperty, this.lumExtensionProperty],
+      () => {
+        // add scaling to go from solar lums to size of extension 
+        return this.sideStarRadiusProperty.value + this.lumExtensionProperty.value;
+      }
+    )
+
+    this.sideStarRadiusProperty.link((radius: number) => {
       this.sideStar.radius = radius;
     });
 
-  this.lumStarRadiusProperty.link((radius: number) => {
+    this.lumStarRadiusProperty.link((radius: number) => {
       this.lumStar.radius = radius;
     });
 
@@ -432,357 +453,386 @@ this.diagramStarXProperty.link( x => {
 
 
 
-  this.lumSlider = new HSlider(this.lumLogProperty,  lumRange, {
-   // left: this.imageHR.right +100,
-  //  bottom: this.imageHR.centerY - 50, 
-    //centerTop: this.sideBar.centerTop,
-  trackSize: new Dimension2(250, 4),
- // addMajorTick: [1, 2, 3],
-  bottom: this.sideBar.centerY - 190,
-  left: this.sideBar.centerX - 180, 
- // left: this.tempSlider.left,
-    children: [
-    this.LText = new RichText( 'Luminosity', {
-     // centerBottom: Vector2.ZERO,
-    //  left: this.imageHR.right +100,
-    //  bottom: this.imageHR.centerY + 10, 
-      center: new Vector2(50, 50),
-      //font: 'bold 20px sans-serif',
-      font: new PhetFont(12),
-      scale: 2,
-      fill: 'white'
-    } ),
-    /** 
-    this.LSide1Text = new RichText( 'Dim', {
-     // centerBottom: Vector2.ZERO,
-    //  left: this.imageHR.right +100,
-    //  bottom: this.imageHR.centerY + 10, 
-      rightCenter: new Vector2(-10, 0),
-      //font: 'bold 20px sans-serif',
-      font: new PhetFont(10),
-      scale: 2,
-      fill: 'white'
-    } ),
-      this.LSide2Text = new RichText( 'Bright', {
-     // centerBottom: Vector2.ZERO,
-    //  left: this.imageHR.right +100,
-    //  bottom: this.imageHR.centerY + 10, 
-      leftCenter: new Vector2(210, 0),
-      //font: 'bold 20px sans-serif',
-      font: new PhetFont(10),
-      scale: 2,
-      fill: 'white'
-    } )
-      */
-  ]
-      });
+    this.lumSlider = new HSlider(this.lumLogProperty, lumRange, {
+      // left: this.imageHR.right +100,
+      //  bottom: this.imageHR.centerY - 50, 
+      //centerTop: this.sideBar.centerTop,
+      trackSize: new Dimension2(250, 4),
+      // addMajorTick: [1, 2, 3],
+      bottom: this.sideBar.centerY - 190,
+      left: this.sideBar.centerX - 180,
+      // left: this.tempSlider.left,
+      children: [
+        this.LText = new RichText('Luminosity', {
+          // centerBottom: Vector2.ZERO,
+          //  left: this.imageHR.right +100,
+          //  bottom: this.imageHR.centerY + 10, 
+          center: new Vector2(50, 50),
+          //font: 'bold 20px sans-serif',
+          font: new PhetFont(12),
+          scale: 2,
+          fill: 'white'
+        }),
+        /** 
+        this.LSide1Text = new RichText( 'Dim', {
+         // centerBottom: Vector2.ZERO,
+        //  left: this.imageHR.right +100,
+        //  bottom: this.imageHR.centerY + 10, 
+          rightCenter: new Vector2(-10, 0),
+          //font: 'bold 20px sans-serif',
+          font: new PhetFont(10),
+          scale: 2,
+          fill: 'white'
+        } ),
+          this.LSide2Text = new RichText( 'Bright', {
+         // centerBottom: Vector2.ZERO,
+        //  left: this.imageHR.right +100,
+        //  bottom: this.imageHR.centerY + 10, 
+          leftCenter: new Vector2(210, 0),
+          //font: 'bold 20px sans-serif',
+          font: new PhetFont(10),
+          scale: 2,
+          fill: 'white'
+        } )
+          */
+      ]
+    });
 
     this.sideBar.addChild(this.lumSlider); // Add the slider to the view
 
-  
-  // light rays for side star:
 
-  //this.rays = new LightRaysNode(5, {
- //   minRays: 5,
-//    maxRays:10,
- //   fill: 'green',
- //   minRayLength: 50,
- //   maxRayLength:150,
- //   bottom: this.sideBar.centerY + 175,
- //   left: this.sideBar.centerX - 50,
- // }
-//);
+    // light rays for side star:
 
-  
-  // diagram star y location
-
-  this.lumLogProperty.link(L => {
-   // const temp = kelvin;
-  //  scaled_value = 1 - (log(kelvin / minTemp) / log(maxTemp/ minTemp))
-   // this.diagramStar.x =this.plotBox.right -( kelvin/maxTemp * this.plotBox.width) - 25;
-  //  this.diagramStar.y =  this.plotBox.height * (1-(Math.log(L/ lumMin) / Math.log(lumMax/ lumMin)));
-    this.diagramStar.y =  this.plotBox.y + this.plotBox.height - 20 - (this.plotBox.height-70) * (( (L-lumMin))/(lumMax - lumMin));
-  });
-  
-
-  // radius dependent on temp and lum 
-  // diagram star radius from Stefan-Boltzmann
-
-  const sigma_SB = 5.67 * 10**(-8); 
- // const Tsun = 5800; //temp of sun in K
-  const diagramStarRadiusMin = 0.5; //in code size units
-  const diagramStarRadiusMax = 25; //in code size units
- // const HRStarRadiusMin = .0001; //in Rsun
-//  const HRStarRadiusMax = 6400; //in Rsun
-
-  
-  this.diagramStarRadiusProperty = new DerivedProperty(
-    [this.colorProperty, this.lumLogProperty],
-    (temp, lum) =>{
-    //  R = (lum/(4*Math.PI*sigma_SB*T**4))**(1/2) 
-    const RInput = ((Tsun/temp)**2 )* ((10**lum)**(1/2)); //radius of star in solar units
-     
-    // Calculate the normalized position (0 to 1) of the input within the logarithmic input range
-    // This formula maps logInputMin to 0 and logInputMax to 1.
-    const normalizedLogPosition = (Math.log(RInput) - Math.log(HRStarRadiusMin)) / (Math.log(HRStarRadiusMax) - Math.log(HRStarRadiusMin));
-
-    // Scale the normalized position to the desired output range
-    // This formula maps 0 to outputMin and 1 to outputMax.
-    const scaledValue = diagramStarRadiusMin + (normalizedLogPosition * (diagramStarRadiusMax - diagramStarRadiusMin));
-
-    // Return the scaled value. It should already be within the output range due to clamping,
-    // but an additional Math.min/max can be added here if stricter clamping is needed after calculation.
-    return scaledValue;
-    }
-  )
-
-  this.diagramStarRadiusProperty.link((radius: number) => {
-    this.diagramStar.radius = radius;
-  });
-
-  //R sidebar text 
-  
-  this.realRadiusProperty = new DerivedProperty(
-    [this.colorProperty, this.lumLogProperty],
-    (temp, lum) =>{
-
-    return  ((Tsun/temp)**2 )* ((10**lum)**(1/2));
-    }
-  )
+    //this.rays = new LightRaysNode(5, {
+    //   minRays: 5,
+    //    maxRays:10,
+    //   fill: 'green',
+    //   minRayLength: 50,
+    //   maxRayLength:150,
+    //   bottom: this.sideBar.centerY + 175,
+    //   left: this.sideBar.centerX - 50,
+    // }
+    //);
 
 
-  this.realRadiusProperty.link((value: number) => {
-   
-   // this.RText.string = `Radius: R = (T<sub>Sun</sub>/T) <sup>2</sup> (L/L<sub>Sun</sub>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
-    this.RText.string = `Radius: R =  (L / 4 \u03c0 \u03c3 T <sup>4</sup>)<sup>1/2</sup> 
-    <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toLocaleString('en-US', { maximumSignificantDigits: 2 })} R<sub>Sun</sub>`;
-  });
+    // diagram star y location
 
-  this.colorProperty.link(value => {
-   
-  //  this.TText.string = `Temperature: T = ${value.toFixed(0)} K` ;
-    this.TText.string = `Temperature: T = ${value.toLocaleString('en-US', { maximumSignificantDigits: 2 })} K`;
-  });
-
-
-  this.lumLogProperty.link(value => {
-   
-   // this.LText.string = `Luminosity: L = ${(10**value).toPrecision(3)} L<sub>Sun</sub>`;
-    this.LText.string = `Luminosity: L = ${(10**value).toLocaleString('en-US', {maximumSignificantDigits: 2 })} L<sub>Sun</sub>`;
-  });
-
-  const updateLumStarAppearance = () => {
-    // 1. Get current values from the properties
-    const kelvin = this.colorProperty.get();
-    const rgb = kelvinToRgbValues(kelvin); 
-    const radius = this.lumStarRadiusProperty.get();
-    const gradientPaint = createRadialFadePaint(
-        rgb.r, 
-        rgb.g, 
-        rgb.b, 
-
-       radius
-    );
-    this.lumStar.fill = gradientPaint; // Create a new Color object from the RGB values
-  };
-
-  // Link 1: Call the update function whenever the Kelvin color changes
-this.colorProperty.link(updateLumStarAppearance);
-
-// Link 2: Call the same update function whenever the radius changes
-// This ensures that movement on BOTH sliders updates the gradient correctly.
-this.lumStarRadiusProperty.link(updateLumStarAppearance);
-  
-
-this.Lbox = new Rectangle(this.sideBar.centerX-190, 9, 340, 90, 10, 10, {
-   // fill: 'black',
-    stroke: 'white',
-  });
-  this.sideBar.addChild(this.Lbox)
-
-this.Tbox = new Rectangle(this.sideBar.centerX-190, 109, 340, 90, 10, 10, {
-   // fill: 'black',
-    stroke: 'white',
-  });
-  this.sideBar.addChild(this.Tbox)
-
-
-//linear side star 
-
-  const linRMin = 1
-  const linRMax = 5000
-  
-  this.sideStarLinRadiusProperty = new DerivedProperty(
-    [this.colorProperty, this.lumLogProperty],
-    (temp, lum) =>{
-    //  R = (lum/(4*Math.PI*sigma_SB*T**4))**(1/2) 
-    const RInput = ((Tsun/temp)**2 )* ((10**lum)**(1/2)); //radius of star in solar units
-     
-    // Calculate the normalized position (0 to 1) of the input within the logarithmic input range
-    // This formula maps logInputMin to 0 and logInputMax to 1.
-    const normalizedPosition = (RInput - HRStarRadiusMin) / (HRStarRadiusMax - HRStarRadiusMin);
-
-    // Scale the normalized position to the desired output range
-    // This formula maps 0 to outputMin and 1 to outputMax.
-    const scaledValue = linRMin + (normalizedPosition  * (linRMax - linRMin));
-
-    // Return the scaled value. It should already be within the output range due to clamping,
-    // but an additional Math.min/max can be added here if stricter clamping is needed after calculation.
-    return scaledValue;
-    }
-  )
-
-const sunR = linRMin + (((1 - HRStarRadiusMin) / (HRStarRadiusMax - HRStarRadiusMin)) * (linRMax - linRMin))
-
-
-this.sideStarSun = new Circle(sunR, {
-  fill: new Color(kelvinToRgbValues(5800).r, kelvinToRgbValues(5800).g, kelvinToRgbValues(5800).b, 1),
-  centerY: this.sideBar.centerY + 147,
-  left:this.sideBar.centerX - 150, 
-  children:[
-  this.sunText = new RichText('Sun', {
-      center: new Vector2(0, 15),
-      font: new PhetFont(8),
-      scale: 2,
-     // font: 'bold 20px sans-serif',
-      fill: 'white',
-    } )
-  ]
-})
-this.sideBar.addChild(this.sideStarSun);
-
-
-
-const sideStarLinX =  this.sideBar.centerX - 65;
-
-this.sideStarLin = new Circle(10, {
-  fill: new Color(kelvinToRgbValues(5800).r, kelvinToRgbValues(5800).g, kelvinToRgbValues(5800).b, 1),
-  centerY: this.sideBar.centerY + 135,
-//  centerX: this.sideBar.centerX - 100, 
-  left: sideStarLinX,
-})
-//this.sideBar.addChild(this.sideStarLin);
-
-this.sideStarLinRadiusProperty.link((radius: number) => {
-      this.sideStarLin.radius = radius;
-      this.sideStarLin.x = sideStarLinX + radius ;
-     // this.sideStarLin.left = this.sideBar.centerX - 100;
+    this.lumLogProperty.link(L => {
+      // const temp = kelvin;
+      //  scaled_value = 1 - (log(kelvin / minTemp) / log(maxTemp/ minTemp))
+      // this.diagramStar.x =this.plotBox.right -( kelvin/maxTemp * this.plotBox.width) - 25;
+      //  this.diagramStar.y =  this.plotBox.height * (1-(Math.log(L/ lumMin) / Math.log(lumMax/ lumMin)));
+      this.diagramStar.y = this.plotBox.y + this.plotBox.height - 20 - (this.plotBox.height - 70) * (((L - lumMin)) / (lumMax - lumMin));
     });
 
-this.colorProperty.link(kelvin => {
-    const rgb = kelvinToRgbValues(kelvin);
-    this.sideStarLin.fill = new Color(rgb.r, rgb.g, rgb.b, 1); // Create a new Color object from the RGB values
-  });
 
-//boundary box for lin star
+    // radius dependent on temp and lum 
+    // diagram star radius from Stefan-Boltzmann
 
-const boxWidth = 380;
-const boxHeight = 250;
+    const sigma_SB = 5.67 * 10 ** (-8);
+    // const Tsun = 5800; //temp of sun in K
+    const diagramStarRadiusMin = 0.5; //in code size units
+    const diagramStarRadiusMax = 25; //in code size units
+    // const HRStarRadiusMin = .0001; //in Rsun
+    //  const HRStarRadiusMax = 6400; //in Rsun
 
-const clippingContainer = new Node({
-    clipArea: Shape.rectangle(this.sideBar.left + 10, this.sideBar.bottom - boxHeight -10, boxWidth, boxHeight)
-});
 
-clippingContainer.addChild(this.sideStarLin);
+    this.diagramStarRadiusProperty = new DerivedProperty(
+      [this.colorProperty, this.lumLogProperty],
+      (temp, lum) => {
+        //  R = (lum/(4*Math.PI*sigma_SB*T**4))**(1/2) 
+        const RInput = ((Tsun / temp) ** 2) * ((10 ** lum) ** (1 / 2)); //radius of star in solar units
 
-const visualBorder = new Rectangle(this.sideBar.left + 10, this.sideBar.bottom - boxHeight -10, boxWidth, boxHeight, {
-    stroke: 'white',
-    lineWidth: 1,
-    pickable: false // Let clicks pass through to the star
-});
+        // Calculate the normalized position (0 to 1) of the input within the logarithmic input range
+        // This formula maps logInputMin to 0 and logInputMax to 1.
+        const normalizedLogPosition = (Math.log(RInput) - Math.log(HRStarRadiusMin)) / (Math.log(HRStarRadiusMax) - Math.log(HRStarRadiusMin));
 
-this.addChild(clippingContainer);
-this.addChild(visualBorder);
+        // Scale the normalized position to the desired output range
+        // This formula maps 0 to outputMin and 1 to outputMax.
+        const scaledValue = diagramStarRadiusMin + (normalizedLogPosition * (diagramStarRadiusMax - diagramStarRadiusMin));
+
+        // Return the scaled value. It should already be within the output range due to clamping,
+        // but an additional Math.min/max can be added here if stricter clamping is needed after calculation.
+        return scaledValue;
+      }
+    )
+
+    this.diagramStarRadiusProperty.link((radius: number) => {
+      this.diagramStar.radius = radius;
+    });
+
+    //R sidebar text 
+
+    this.realRadiusProperty = new DerivedProperty(
+      [this.colorProperty, this.lumLogProperty],
+      (temp, lum) => {
+
+        return ((Tsun / temp) ** 2) * ((10 ** lum) ** (1 / 2));
+      }
+    )
+
+
+    this.realRadiusProperty.link((value: number) => {
+
+      // this.RText.string = `Radius: R = (T<sub>Sun</sub>/T) <sup>2</sup> (L/L<sub>Sun</sub>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
+      this.RText.string = `Radius: R =  (L / 4 \u03c0 \u03c3 T <sup>4</sup>)<sup>1/2</sup> 
+    <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toLocaleString('en-US', { maximumSignificantDigits: 2 })} R<sub>Sun</sub>`;
+    });
+
+    this.colorProperty.link(value => {
+
+      //  this.TText.string = `Temperature: T = ${value.toFixed(0)} K` ;
+      this.TText.string = `Temperature: T = ${value.toLocaleString('en-US', { maximumSignificantDigits: 2 })} K`;
+    });
+
+
+    this.lumLogProperty.link(value => {
+
+      // this.LText.string = `Luminosity: L = ${(10**value).toPrecision(3)} L<sub>Sun</sub>`;
+      this.LText.string = `Luminosity: L = ${(10 ** value).toLocaleString('en-US', { maximumSignificantDigits: 2 })} L<sub>Sun</sub>`;
+    });
+
+    const updateLumStarAppearance = () => {
+      // 1. Get current values from the properties
+      const kelvin = this.colorProperty.get();
+      const rgb = kelvinToRgbValues(kelvin);
+      const radius = this.lumStarRadiusProperty.get();
+      const gradientPaint = createRadialFadePaint(
+        rgb.r,
+        rgb.g,
+        rgb.b,
+
+        radius
+      );
+      this.lumStar.fill = gradientPaint; // Create a new Color object from the RGB values
+    };
+
+    // Link 1: Call the update function whenever the Kelvin color changes
+    this.colorProperty.link(updateLumStarAppearance);
+
+    // Link 2: Call the same update function whenever the radius changes
+    // This ensures that movement on BOTH sliders updates the gradient correctly.
+    this.lumStarRadiusProperty.link(updateLumStarAppearance);
+
+
+    this.Lbox = new Rectangle(this.sideBar.centerX - 190, 9, 340, 90, 10, 10, {
+      // fill: 'black',
+      stroke: 'white',
+    });
+    this.sideBar.addChild(this.Lbox)
+
+    this.Tbox = new Rectangle(this.sideBar.centerX - 190, 109, 340, 90, 10, 10, {
+      // fill: 'black',
+      stroke: 'white',
+    });
+    this.sideBar.addChild(this.Tbox)
+
+
+    //linear side star 
+
+    const linRMin = 1
+    const linRMax = 5000
+
+    this.sideStarLinRadiusProperty = new DerivedProperty(
+      [this.colorProperty, this.lumLogProperty],
+      (temp, lum) => {
+        //  R = (lum/(4*Math.PI*sigma_SB*T**4))**(1/2) 
+        const RInput = ((Tsun / temp) ** 2) * ((10 ** lum) ** (1 / 2)); //radius of star in solar units
+
+        // Calculate the normalized position (0 to 1) of the input within the logarithmic input range
+        // This formula maps logInputMin to 0 and logInputMax to 1.
+        const normalizedPosition = (RInput - HRStarRadiusMin) / (HRStarRadiusMax - HRStarRadiusMin);
+
+        // Scale the normalized position to the desired output range
+        // This formula maps 0 to outputMin and 1 to outputMax.
+        const scaledValue = linRMin + (normalizedPosition * (linRMax - linRMin));
+
+        // Return the scaled value. It should already be within the output range due to clamping,
+        // but an additional Math.min/max can be added here if stricter clamping is needed after calculation.
+        return scaledValue;
+      }
+    )
+
+    const sunR = linRMin + (((1 - HRStarRadiusMin) / (HRStarRadiusMax - HRStarRadiusMin)) * (linRMax - linRMin))
+
+
+    this.sideStarSun = new Circle(sunR, {
+      fill: new Color(kelvinToRgbValues(5800).r, kelvinToRgbValues(5800).g, kelvinToRgbValues(5800).b, 1),
+      centerY: this.sideBar.centerY + 147,
+      left: this.sideBar.centerX - 150,
+      children: [
+        this.sunText = new RichText('Sun', {
+          center: new Vector2(0, 15),
+          font: new PhetFont(8),
+          scale: 2,
+          // font: 'bold 20px sans-serif',
+          fill: 'white',
+        })
+      ]
+    })
+    this.sideBar.addChild(this.sideStarSun);
+
+
+
+    const sideStarLinX = this.sideBar.centerX - 65;
+
+    this.sideStarLin = new Circle(10, {
+      fill: new Color(kelvinToRgbValues(5800).r, kelvinToRgbValues(5800).g, kelvinToRgbValues(5800).b, 1),
+      centerY: this.sideBar.centerY + 135,
+      //  centerX: this.sideBar.centerX - 100, 
+      left: sideStarLinX,
+    })
+    //this.sideBar.addChild(this.sideStarLin);
+
+    this.sideStarLinRadiusProperty.link((radius: number) => {
+      this.sideStarLin.radius = radius;
+      this.sideStarLin.x = sideStarLinX + radius;
+      // this.sideStarLin.left = this.sideBar.centerX - 100;
+    });
+
+    this.colorProperty.link(kelvin => {
+      const rgb = kelvinToRgbValues(kelvin);
+      this.sideStarLin.fill = new Color(rgb.r, rgb.g, rgb.b, 1); // Create a new Color object from the RGB values
+    });
+
+    //boundary box for lin star
+
+    const boxWidth = 380;
+    const boxHeight = 250;
+
+    const clippingContainer = new Node({
+      clipArea: Shape.rectangle(this.sideBar.left + 10, this.sideBar.bottom - boxHeight - 10, boxWidth, boxHeight)
+    });
+
+    clippingContainer.addChild(this.sideStarLin);
+
+    const visualBorder = new Rectangle(this.sideBar.left + 10, this.sideBar.bottom - boxHeight - 10, boxWidth, boxHeight, {
+      stroke: 'white',
+      lineWidth: 1,
+      pickable: false // Let clicks pass through to the star
+    });
+
+    this.addChild(clippingContainer);
+    this.addChild(visualBorder);
 
 //clippingContainer.addChild(this.sideStarLin);
 
-//toggle sidestar radius log/linear 
 
-const showLogRProperty = new BooleanProperty(true);
+const showLabelsProperty = new BooleanProperty(false);
 
-// Link the property to the circle's visibility
-showLogRProperty.link( ( visible ) => {
-    this.sideStar.visible = visible;
+showLabelsProperty.link( ( visible ) => {
+    this.MSText.visible = visible;
 });
 
-// Link the property to the circle's visibility
-showLogRProperty.link( ( visible ) => {
-    this.lumStar.visible = visible;
+showLabelsProperty.link( ( visible ) => {
+    this.WDText.visible = visible;
 });
 
-showLogRProperty.link( ( visible ) => {
-    this.sideStarSun.visible = !visible;
+showLabelsProperty.link( ( visible ) => {
+    this.giantText.visible = visible;
 });
 
-showLogRProperty.link( ( visible ) => {
-    this.sideStarLin.visible = !visible;
-});
+this.labelCheckbox = new Checkbox (
+    showLabelsProperty,      // The property to control 
+    new Text( 'Show Labels', { font: new PhetFont( 14 ), fill: 'white' } ), // The text NEXT to the box
+    {
+        // Optional positioning
+        left: this.sideBar.left ,
+        bottom: this.sideBar.bottom + 25,
+        boxWidth: 15, // Size of the square box
+        checkboxColor: '#65a8e6',
+    } 
+);
 
-//this.visibilitySwitch = new OnOffSwitch( showLogRProperty, {
-this.visibilitySwitch = new ToggleSwitch( showLogRProperty, false, true, {
- //   trackOnFill: '#4c9bba',   // Blue when 'On' (instead of default green)
-  //  trackOffFill:  '#e5e5e5',  // Grey when 'Off'
-    thumbFill: 'white',
-    size: new Dimension2( 40, 20 ), // Optional: adjust size
-    thumbTouchAreaXDilation: 10 ,    // Optional: make it easier to grab on touch screens
-} );
+this.addChild( this.labelCheckbox );
 
-//this.addChild( this.visibilitySwitch );
+    //toggle sidestar radius log/linear 
 
-const leftLabel = new Text( 'R', { font: new PhetFont(8), scale: 2, fill: 'white' } );
-const rightLabel = new Text( 'Log(R)', { font: new PhetFont(8), scale: 2, fill: 'white'} );
+    const showLogRProperty = new BooleanProperty(true);
 
-// 2. Put them in an HBox with your existing switch
-const labeledSwitch = new HBox( {
-    bottom: this.sideBar.bottom - 15,
-    left: this.sideBar.left + 15, 
-    children: [ leftLabel, this.visibilitySwitch, rightLabel ],
-    spacing: 7, // Space between items
-    align: 'center' // Vertically align text with the switch
-} );
+    // Link the property to the circle's visibility
+    showLogRProperty.link((visible) => {
+      this.sideStar.visible = visible;
+    });
 
-// 3. Add the HBox to the scene instead of just the switch
-this.addChild( labeledSwitch );
+    // Link the property to the circle's visibility
+    showLogRProperty.link((visible) => {
+      this.lumStar.visible = visible;
+    });
 
-this.downloadButton = new TextPushButton( 'Open Worksheet', {
-    font: new PhetFont( 14 ),
-    baseColor: '#65a8e6', // PhET Blue
-    listener: () => {
+    showLogRProperty.link((visible) => {
+      this.sideStarSun.visible = !visible;
+    });
+
+    showLogRProperty.link((visible) => {
+      this.sideStarLin.visible = !visible;
+    });
+
+    //this.visibilitySwitch = new OnOffSwitch( showLogRProperty, {
+    this.visibilitySwitch = new ToggleSwitch(showLogRProperty, false, true, {
+      //   trackOnFill: '#4c9bba',   // Blue when 'On' (instead of default green)
+      //  trackOffFill:  '#e5e5e5',  // Grey when 'Off'
+      thumbFill: 'white',
+      size: new Dimension2(40, 20), // Optional: adjust size
+      thumbTouchAreaXDilation: 10,    // Optional: make it easier to grab on touch screens
+    });
+
+    //this.addChild( this.visibilitySwitch );
+
+    const leftLabel = new Text('R', { font: new PhetFont(8), scale: 2, fill: 'white' });
+    const rightLabel = new Text('Log(R)', { font: new PhetFont(8), scale: 2, fill: 'white' });
+
+    // 2. Put them in an HBox with your existing switch
+    const labeledSwitch = new HBox({
+      bottom: this.sideBar.bottom - 15,
+      left: this.sideBar.left + 15,
+      children: [leftLabel, this.visibilitySwitch, rightLabel],
+      spacing: 7, // Space between items
+      align: 'center' // Vertically align text with the switch
+    });
+
+    // 3. Add the HBox to the scene instead of just the switch
+    this.addChild(labeledSwitch);
+
+    this.downloadButton = new TextPushButton('Open Worksheet', {
+      font: new PhetFont(14),
+      baseColor: '#65a8e6', // PhET Blue
+      listener: () => {
         // This opens the PDF in a new tab, which the browser handles as a download/view
         // Replace with your local relative path or a hosted URL
-        window.open( 'public/images/HR_simulation_worksheet.pdf', '_blank' ); 
-    },
-    // Position it
-    left: 840,
-    bottom: 600
-} );
+        window.open('public/images/HR_simulation_worksheet.pdf', '_blank');
+      },
+      // Position it
+      left: 840,
+      bottom: 600
+    });
 
-this.addChild( this.downloadButton );
-
-
-  /*
-  //radius text in sidebar
-  const testN = 10;
-
-   this.RText = new Text('R = ${testN}', 
-    bottom: this.sideBar.centerY - 200,
-    left: this.sideBar.centerX - 100, 
-    font: 'bold 20px sans-serif',
-    fill: 'black'
-  )
-  this.sideBar.addChild(this.RText); // Add the slider to the view
-  */
+    this.addChild(this.downloadButton);
 
 
+    /*
+    //radius text in sidebar
+    const testN = 10;
+  
+     this.RText = new Text('R = ${testN}', 
+      bottom: this.sideBar.centerY - 200,
+      left: this.sideBar.centerX - 100, 
+      font: 'bold 20px sans-serif',
+      fill: 'black'
+    )
+    this.sideBar.addChild(this.RText); // Add the slider to the view
+    */
 
 
-   const resetAllButton = new ResetAllButton({
+
+
+    const resetAllButton = new ResetAllButton({
       listener: () => {
         this.interruptSubtreeInput();
         model.reset();
         this.reset();
-        this.logTProperty.set(4.07918)
-        this.lumLogProperty.set(2.77815);
+        this.logTProperty.set(3.76)
+        this.lumLogProperty.set(0);
       },
       right: this.layoutBounds.maxX - 10,
       bottom: this.layoutBounds.maxY - 10,
@@ -790,23 +840,23 @@ this.addChild( this.downloadButton );
     this.addChild(resetAllButton);
   }
 
-        /**
-     * This method is called whenever the display's layout bounds change (e.g., window resize).
-     * It's where you define the responsive positioning and sizing of your nodes.
-    * @param bounds - The current layout bounds of the screen.
-     */
+  /**
+* This method is called whenever the display's layout bounds change (e.g., window resize).
+* It's where you define the responsive positioning and sizing of your nodes.
+* @param bounds - The current layout bounds of the screen.
+*/
   public layout(bounds: Bounds2): void {
-     super.layout(bounds); // IMPORTANT: Always call super.layout() first!
+    super.layout(bounds); // IMPORTANT: Always call super.layout() first!
 
-        // --- Position and Size the Image for the Left Half ---
-     this.imageHR.x = bounds.minX;      // Start at the left edge of the screen
-     this.imageHR.y = bounds.minY;      // Start at the top edge of the screen
-   //  this.imageHR.width = bounds.width / 2; // Make it half the screen width
-   //  this.imageHR.height = bounds.height; // Make it the full screen height
+    // --- Position and Size the Image for the Left Half ---
+    this.imageHR.x = bounds.minX;      // Start at the left edge of the screen
+    this.imageHR.y = bounds.minY;      // Start at the top edge of the screen
+    //  this.imageHR.width = bounds.width / 2; // Make it half the screen width
+    //  this.imageHR.height = bounds.height; // Make it the full screen height
 
 
 
-}
+  }
 
 
 
