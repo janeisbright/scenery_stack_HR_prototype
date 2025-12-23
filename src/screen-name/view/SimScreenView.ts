@@ -12,9 +12,7 @@ import kelvinToRgbValues from './kelvinToRgbValues.js';
 export class SimScreenView extends ScreenView {
 
   private plotBox: Rectangle; 
-  private Lbox: Rectangle;
-  private Tbox: Rectangle;
-//  private blackBox: Rectangle;
+ //  private blackBox: Rectangle;
   private imageHR: Image;
   private diagramStar: Circle;
   private lumStar: Circle;
@@ -29,7 +27,6 @@ export class SimScreenView extends ScreenView {
   private downloadButton: TextPushButton;
   private TText: RichText;
   private LText: RichText;
-  private RText: RichText;
   private giantText: RichText;
   private WDText: RichText;
   private MSText: RichText;
