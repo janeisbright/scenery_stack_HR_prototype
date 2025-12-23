@@ -62,7 +62,7 @@ export class SimScreenView extends ScreenView {
   private plotBox: Rectangle; 
   private Lbox: Rectangle;
   private Tbox: Rectangle;
-  private blackBox: Rectangle;
+//  private blackBox: Rectangle;
   private imageHR: Image;
   private diagramStar: Circle;
   private lumStar: Circle;
@@ -77,6 +77,10 @@ export class SimScreenView extends ScreenView {
   private TText: RichText;
   private LText: RichText;
   private RText: RichText;
+  private giantText: RichText;
+  private WDText: RichText;
+  private MSText: RichText;
+  private labelCheckbox: Checkbox;
   private starPositionProperty: Property<Vector2>;
   private colorProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
   private sideStarLinRadiusProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
@@ -116,20 +120,20 @@ export class SimScreenView extends ScreenView {
     // This ensures that all other nodes are drawn on top of it.
     this.addChild(background);
 
-
+/** 
     this.imageHR = new Image('images/HR.jpg',{
       scale: 0.45,
      // scale: 0.36,
     
     });
     this.addChild(this.imageHR);
-
+*/
   
-    this.imageHR = new Image('images/HR_diagram_thermal_stars.png',{
+    this.imageHR = new Image('images/HR_diagram_thermal_stars_cropped.png',{
       scale: 0.25,
      // opacity: 0.5,
-      left: -18,
-      top: -20,
+      left: -15,
+      top: -10,
      // scale: 0.36,
     });
     this.addChild(this.imageHR);
@@ -139,7 +143,7 @@ export class SimScreenView extends ScreenView {
     //  left: this.imageHR.right +100,
     //  bottom: this.imageHR.centerY + 10, 
      // center: new Vector2(550, 165),
-      center: new Vector2(520, 150),
+      center: new Vector2(520, 130),
       font: new PhetFont(12),
       scale: 2,
      // font: 'bold 20px sans-serif',
@@ -152,7 +156,7 @@ export class SimScreenView extends ScreenView {
      // centerBottom: Vector2.ZERO,
     //  left: this.imageHR.right +100,
     //  bottom: this.imageHR.centerY + 10, 
-      center: new Vector2(250, 480),
+      center: new Vector2(250, 470),
       font: new PhetFont(12),
       scale: 2,
      // font: 'bold 20px sans-serif',
@@ -183,20 +187,21 @@ export class SimScreenView extends ScreenView {
 
   // frame of plot (bounds of where diagram star should be)
 
-  this.plotBox = new Rectangle(75, 10, 490, 490, {
+  this.plotBox = new Rectangle(80, 15, 490, 490, {
  // this.plotBox = new Rectangle(95, 40, 495, 495, {
    // fill: 'white',
    
-  // stroke: 'green',
+   //stroke: 'green',
   });
   this.addChild(this.plotBox)
 
+  /**
   this.blackBox = new Rectangle(405, 410, 100, 20, 9, 9, {
     fill: 'black',
   //  stroke: 'white',
   });
   this.plotBox.addChild(this.blackBox)
-
+*/
 
 
   // diagram star
@@ -398,7 +403,7 @@ this.diagramStarXProperty.link( x => {
   //this.lumExtensionProperty = new Property(20);
 
   const lumMin = -4.1; //log lum in solar lums
-  const lumMax = 5.5; 
+  const lumMax = 5.7; 
 //  const lumMin = .0001;
  // const lumMax = 1000000; 
 //  const lumMin = 10;
@@ -866,8 +871,8 @@ this.addChild( this.downloadButton );
         this.interruptSubtreeInput();
         model.reset();
         this.reset();
-        this.logTProperty.set(4.07918)
-        this.lumLogProperty.set(2.77815);
+        this.logTProperty.set(3.76)
+        this.lumLogProperty.set(0);
       },
       right: this.layoutBounds.maxX - 10,
       bottom: this.layoutBounds.maxY - 10,
