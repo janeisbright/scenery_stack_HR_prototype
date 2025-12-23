@@ -3,36 +3,18 @@ import { SimModel } from "../model/SimModel.js";
 import { ResetAllButton, MathSymbolFont, PhetFont, LightRaysNode } from "scenerystack/scenery-phet";
 import { Rectangle, Text, Image, Circle, Color, DragListener, RichText, RadialGradient, Node, HBox } from "scenerystack/scenery";
 import { TextPushButton, SliderTickOptions, OnOffSwitch, ToggleSwitch } from "scenerystack/sun";
-import { HSlider } from 'scenerystack/sun';
-import { DerivedProperty, Property, BooleanProperty } from 'scenerystack/axon';
-import { Range, Vector2, Bounds2, Dimension2 } from 'scenerystack/dot';
+import { HSlider, Checkbox } from 'scenerystack/sun';
+import { DerivedProperty, Property, BooleanProperty } from 'scenerystack/axon'; 
+import { Range, Vector2, Bounds2, Dimension2 } from 'scenerystack/dot'; 
 import { Shape } from 'scenerystack/kite';
 import kelvinToRgbValues from './kelvinToRgbValues.js';
 
 export class SimScreenView extends ScreenView {
 
-  // Star
-  private realRadiusProperty: DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
-  private logTProperty: Property<number>;
-
-  // StarNode
-  private starPositionProperty: Property<Vector2>;
-  private colorProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
-  private sideStarLinRadiusProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
-  private lumLogProperty: Property<number>;
-  private lumExtensionProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
-  private sideStarRadiusProperty: DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
-  private lumStarRadiusProperty: DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
-  
-  
-  // DiagramStar
-  private diagramStarXProperty: Property<number>;
-  private diagramStarRadiusProperty: DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
-  
-
-  // HR Diagram
-  private plotBox: Rectangle;
-  private blackBox: Rectangle;
+  private plotBox: Rectangle; 
+  private Lbox: Rectangle;
+  private Tbox: Rectangle;
+//  private blackBox: Rectangle;
   private imageHR: Image;
   private diagramStar: Circle;
   private lumStar: Circle;
@@ -47,8 +29,24 @@ export class SimScreenView extends ScreenView {
   private downloadButton: TextPushButton;
   private TText: RichText;
   private LText: RichText;
-  private tempSlider: HSlider;
-  private lumSlider: HSlider;
+  private RText: RichText;
+  private giantText: RichText;
+  private WDText: RichText;
+  private MSText: RichText;
+  private labelCheckbox: Checkbox;
+  private starPositionProperty: Property<Vector2>;
+  private colorProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
+  private sideStarLinRadiusProperty: DerivedProperty<number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
+  private lumLogProperty: Property<number>; 
+  private diagramStarXProperty: Property<number>; 
+  private logTProperty: Property<number>; 
+  private lumExtensionProperty:  DerivedProperty<number, number, unknown,unknown ,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown>;
+  private sideStarRadiusProperty: DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
+  private lumStarRadiusProperty:  DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
+  private diagramStarRadiusProperty:  DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;  
+  private realRadiusProperty:  DerivedProperty<number, number, number, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>; 
+  private tempSlider: HSlider; 
+  private lumSlider: HSlider; 
 
   // Equation Panel
   private RText: RichText;
@@ -85,12 +83,65 @@ export class SimScreenView extends ScreenView {
     // This ensures that all other nodes are drawn on top of it.
     this.addChild(background);
 
-
-    this.imageHR = new Image('images/HR.jpg', {
+/** 
+    this.imageHR = new Image('images/HR.jpg',{
       scale: 0.45,
-      // scale: 0.36,
+     // scale: 0.36,
+    
     });
     this.addChild(this.imageHR);
+*/
+  
+    this.imageHR = new Image('images/HR_diagram_thermal_stars_cropped.png',{
+      scale: 0.25,
+     // opacity: 0.5,
+      left: -15,
+      top: -10,
+     // scale: 0.36,
+    });
+    this.addChild(this.imageHR);
+
+    this.giantText = new RichText('Giants', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+     // center: new Vector2(550, 165),
+      center: new Vector2(520, 130),
+      font: new PhetFont(12),
+      scale: 2,
+     // font: 'bold 20px sans-serif',
+      fill: 'white'
+    } )
+
+    this.addChild(this.giantText);
+
+    this.WDText = new RichText('White Dwarfs', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+      center: new Vector2(250, 470),
+      font: new PhetFont(12),
+      scale: 2,
+     // font: 'bold 20px sans-serif',
+      fill: 'white'
+    } )
+
+   this.addChild(this.WDText);
+
+   this.MSText = new RichText('Main Sequence', {
+     // centerBottom: Vector2.ZERO,
+    //  left: this.imageHR.right +100,
+    //  bottom: this.imageHR.centerY + 10, 
+      center: new Vector2(350, 300),
+      rotation: .7,
+      font: new PhetFont(12),
+      scale: 2,
+     // font: 'bold 20px sans-serif',
+      fill: 'white'
+    } )
+
+   this.addChild(this.MSText);
+    
 
     this.layout(this.layoutBounds);
 
@@ -99,36 +150,40 @@ export class SimScreenView extends ScreenView {
 
     // frame of plot (bounds of where diagram star should be)
 
-    this.plotBox = new Rectangle(75, 10, 490, 490, {
-      // fill: 'white',
-      // stroke: 'green',
-    });
-    this.addChild(this.plotBox)
+  this.plotBox = new Rectangle(80, 15, 490, 490, {
+ // this.plotBox = new Rectangle(95, 40, 495, 495, {
+   // fill: 'white',
+   
+   //stroke: 'green',
+  });
+  this.addChild(this.plotBox)
 
-    this.blackBox = new Rectangle(405, 410, 100, 20, 9, 9, {
-      fill: 'black',
-      //  stroke: 'white',
-    });
-    this.plotBox.addChild(this.blackBox)
-
+  /**
+  this.blackBox = new Rectangle(405, 410, 100, 20, 9, 9, {
+    fill: 'black',
+  //  stroke: 'white',
+  });
+  this.plotBox.addChild(this.blackBox)
+*/
 
 
     // diagram star
 
-    this.diagramStar = new Circle(25, {
-      fill: 'yellow',
-      // cursor: 'pointer',
-      //translation: this.imageHR.center,
+  this.diagramStar = new Circle( 25, {
+  fill: 'yellow',
+  stroke: "black",
+ // cursor: 'pointer',
+  //translation: this.imageHR.center,
+  center: Vector2.ZERO,
+/*  children: [
+    new Text( 'Drag me', {
       center: Vector2.ZERO,
-      /*  children: [
-          new Text( 'Drag me', {
-            center: Vector2.ZERO,
-            font: 'bold 20px sans-serif',
-            fill: '#eee'
-          } )  
-        ]*/
-    });
-    this.plotBox.addChild(this.diagramStar);
+      font: 'bold 20px sans-serif',
+      fill: '#eee'
+    } )  
+  ]*/
+  } );
+  this.plotBox.addChild(this.diagramStar);
 
     this.starPositionProperty = new Property(new Vector2(100, 150));
     this.starPositionProperty.link(position => this.diagramStar.translation = position);
@@ -310,17 +365,17 @@ export class SimScreenView extends ScreenView {
 
     //this.lumExtensionProperty = new Property(20);
 
-    const lumMin = -4.1; //log lum in solar lums
-    const lumMax = 5.5;
-    //  const lumMin = .0001;
-    // const lumMax = 1000000; 
-    //  const lumMin = 10;
-    //  const lumMax = 100; 
-    //  const lumMin = 1;
-    //  const lumMax = 2; 
-    const lumRange = new Range(lumMin, lumMax);
-    const lumExtensionMin = 10;
-    const lumExtensionMax = 100;
+  const lumMin = -4.1; //log lum in solar lums
+  const lumMax = 5.7; 
+//  const lumMin = .0001;
+ // const lumMax = 1000000; 
+//  const lumMin = 10;
+//  const lumMax = 100; 
+//  const lumMin = 1;
+//  const lumMax = 2; 
+  const lumRange = new Range(lumMin, lumMax);
+  const lumExtensionMin = 10;
+  const lumExtensionMax = 100;
 
     this.lumLogProperty = new Property(3);
 
@@ -663,7 +718,36 @@ export class SimScreenView extends ScreenView {
     this.addChild(clippingContainer);
     this.addChild(visualBorder);
 
-    //clippingContainer.addChild(this.sideStarLin);
+//clippingContainer.addChild(this.sideStarLin);
+
+
+const showLabelsProperty = new BooleanProperty(false);
+
+showLabelsProperty.link( ( visible ) => {
+    this.MSText.visible = visible;
+});
+
+showLabelsProperty.link( ( visible ) => {
+    this.WDText.visible = visible;
+});
+
+showLabelsProperty.link( ( visible ) => {
+    this.giantText.visible = visible;
+});
+
+this.labelCheckbox = new Checkbox (
+    showLabelsProperty,      // The property to control 
+    new Text( 'Show Labels', { font: new PhetFont( 14 ), fill: 'white' } ), // The text NEXT to the box
+    {
+        // Optional positioning
+        left: this.sideBar.left ,
+        bottom: this.sideBar.bottom + 25,
+        boxWidth: 15, // Size of the square box
+        checkboxColor: '#65a8e6',
+    } 
+);
+
+this.addChild( this.labelCheckbox );
 
     //toggle sidestar radius log/linear 
 
@@ -750,8 +834,8 @@ export class SimScreenView extends ScreenView {
         this.interruptSubtreeInput();
         model.reset();
         this.reset();
-        this.logTProperty.set(4.07918)
-        this.lumLogProperty.set(2.77815);
+        this.logTProperty.set(3.76)
+        this.lumLogProperty.set(0);
       },
       right: this.layoutBounds.maxX - 10,
       bottom: this.layoutBounds.maxY - 10,
