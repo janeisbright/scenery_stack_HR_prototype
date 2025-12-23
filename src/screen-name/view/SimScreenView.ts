@@ -89,6 +89,7 @@ export class SimScreenView extends ScreenView {
     this.addChild(this.imageHR);
 */
   
+/** 
     this.imageHR = new Image('images/HR_diagram_thermal_stars_cropped.png',{
 //    this.imageHR = new Image('images/HR.jpg',{
       scale: 0.25,
@@ -98,6 +99,20 @@ export class SimScreenView extends ScreenView {
      // scale: 0.36,
     });
     this.addChild(this.imageHR);
+
+    */
+
+    this.imageHR = new Image('images/HR_diagram_thermal_stars_cropped.png', {scale: 0.25,});
+
+    this.imageHR.imageProperty.link( ( img ) => {
+   if ( img ) {
+      // Now we know the width/height are real
+      this.imageHR.left = -15; 
+      this.imageHR.top = -10;
+   }
+});
+  this.addChild(this.imageHR);
+
 
     this.giantText = new RichText('Giants', {
      // centerBottom: Vector2.ZERO,
