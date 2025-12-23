@@ -90,6 +90,7 @@ export class SimScreenView extends ScreenView {
 */
   
     this.imageHR = new Image('images/HR_diagram_thermal_stars_cropped.png',{
+//    this.imageHR = new Image('images/HR.jpg',{
       scale: 0.25,
      // opacity: 0.5,
       left: -15,
