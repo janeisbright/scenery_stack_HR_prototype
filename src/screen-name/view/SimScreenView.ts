@@ -47,6 +47,7 @@ export class SimScreenView extends ScreenView {
 
   // Equation Panel
   private RText: RichText;
+  private imageR: Image;
 
   // Star Panel
   private sideStar: Circle;
@@ -604,7 +605,7 @@ export class SimScreenView extends ScreenView {
     this.realRadiusProperty.link((value: number) => {
 
       // this.RText.string = `Radius: R = (T<sub>Sun</sub>/T) <sup>2</sup> (L/L<sub>Sun</sub>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
-      this.RText.string = `Radius: R =  (L / 4 \u03c0 \u03c3 T <sup>4</sup>)<sup>1/2</sup> 
+      this.RText.string = `Radius: R =  <sup>1/2</sup> 
     <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toLocaleString('en-US', { maximumSignificantDigits: 2 })} R<sub>Sun</sub>`;
     });
 
