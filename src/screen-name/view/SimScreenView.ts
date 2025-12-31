@@ -362,20 +362,22 @@ export class SimScreenView extends ScreenView {
       ]
     });
 
-     this.imageR = new Image('public/images/R_eqn.png', {scale: 1,});
-
-    this.imageR.imageProperty.link( ( img ) => {
-   if ( img ) {
-      // Now we know the width/height are real
-      this.imageR.top = this.sideBar.centerY - 20,; 
-      this.imageR.left = this.sideBar.centerX - 180;
-   }
-});
-  this.addChild(this.imageR);
+ 
 
 
     this.sideBar.addChild(this.tempSlider); // Add the slider to the view
 
+    this.imageR = new Image('public/images/R_eqn_label.png',{
+      scale: 0.28,
+     // opacity: 0.5,
+     // center: new Vector2(740, 236),
+      left: 630,
+      bottom: 201,
+     // bottom: this.sideBar.centerY - 35,
+     // left: this.sideBar.centerX - 70,
+     // scale: 0.36,
+    });
+    this.addChild(this.imageR);
 
 
 
