@@ -7,7 +7,7 @@ init({
   name: "stellar-evolution",
 
   // Version (will be shown in the About dialog)
-  version: "1.2.0",
+  version: "1.2.1",
 
   // The brand name used (should be the same as in brand.ts)
   brand: "made-with-scenerystack",

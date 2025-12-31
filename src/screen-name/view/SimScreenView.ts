@@ -354,7 +354,7 @@ export class SimScreenView extends ScreenView {
           // centerBottom: Vector2.ZERO,
           //  left: this.imageHR.right +100,
           //  bottom: this.imageHR.centerY + 10, 
-          center: new Vector2(50, 120),
+          center: new Vector2(30, 120),
           // font: 'bold 20px sans-serif',
           font: new PhetFont(12),
           scale: 2,
