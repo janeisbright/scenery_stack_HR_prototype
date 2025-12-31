@@ -47,6 +47,7 @@ export class SimScreenView extends ScreenView {
 
   // Equation Panel
   private RText: RichText;
+  private imageR: Image;
 
   // Star Panel
   private sideStar: Circle;
@@ -337,7 +338,10 @@ export class SimScreenView extends ScreenView {
           // centerBottom: Vector2.ZERO,
           //  left: this.imageHR.right +100,
           //  bottom: this.imageHR.centerY + 10, 
-          center: new Vector2(50, 120),
+         
+         // center: new Vector2(50, 120),
+
+          center: new Vector2(30, 120),
           // font: 'bold 20px sans-serif',
           font: new PhetFont(12),
           scale: 2,
@@ -349,6 +353,19 @@ export class SimScreenView extends ScreenView {
 
     this.sideBar.addChild(this.tempSlider); // Add the slider to the view
 
+
+    
+    this.imageR = new Image('public/images/R_eqn_label.png',{
+      scale: 0.28,
+     // opacity: 0.5,
+     // center: new Vector2(740, 236),
+      left: 630,
+      bottom: 201,
+     // bottom: this.sideBar.centerY - 35,
+     // left: this.sideBar.centerX - 70,
+     // scale: 0.36,
+    });
+    this.addChild(this.imageR);
 
 
 
@@ -575,7 +592,7 @@ export class SimScreenView extends ScreenView {
     this.realRadiusProperty.link((value: number) => {
 
       // this.RText.string = `Radius: R = (T<sub>Sun</sub>/T) <sup>2</sup> (L/L<sub>Sun</sub>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
-      this.RText.string = `Radius: R =  (L / 4 \u03c0 \u03c3 T <sup>4</sup>)<sup>1/2</sup> 
+      this.RText.string = `Radius: R =  T <sup>4</sup><sup>1/2</sup> 
     <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toLocaleString('en-US', { maximumSignificantDigits: 2 })} R<sub>Sun</sub>`;
     });
 
