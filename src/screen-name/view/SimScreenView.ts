@@ -111,6 +111,9 @@ export class SimScreenView extends ScreenView {
       fill: 'white'
     } )
 
+
+    
+
     this.addChild(this.giantText);
 
     this.WDText = new RichText('White Dwarfs', {
@@ -190,6 +193,8 @@ export class SimScreenView extends ScreenView {
       //  positionProperty: this.starPositionProperty,
       dragBoundsProperty: new Property(this.plotBox.bounds.eroded(30))
     }));
+
+    
 
 
 
@@ -308,7 +313,31 @@ export class SimScreenView extends ScreenView {
       // this.logTProperty.set((1-(x/c)) * Math.log(maxTemp/ minTemp) + Math.log(minTemp)   );
 
     })
+    
+    this.imageR = new Image('public/images/R_eqn_label.png',{
+      initialWidth: 1070,
+      initialHeight: 198,
+      scale: 0.28,
+     // opacity: 0.5,
+     // center: new Vector2(740, 236),
 
+
+     // left: 630,
+     // bottom: 201,
+     // bottom: 258,
+      bottom: this.sideBar.centerY - 21,
+      left: this.sideBar.centerX - 184,
+    
+      //center: new Vector2(0, 0),
+
+     // bottom: this.sideBar.centerY - 35,
+     // left: this.sideBar.centerX - 70,
+     // scale: 0.36,
+    });
+    //this.addChild(this.imageR);
+    this.sideBar.addChild(this.imageR)
+
+    
 
     this.tempSlider = new HSlider(this.logTProperty, logTempRange, {
       // Options for the slider's appearance and behavior
@@ -346,7 +375,8 @@ export class SimScreenView extends ScreenView {
           font: new PhetFont(12),
           scale: 2,
           fill: 'white'
-        })
+        }),
+     
       ]
     });
 
@@ -355,17 +385,7 @@ export class SimScreenView extends ScreenView {
 
 
     
-    this.imageR = new Image('public/images/R_eqn_label.png',{
-      scale: 0.28,
-     // opacity: 0.5,
-     // center: new Vector2(740, 236),
-      left: 630,
-      bottom: 201,
-     // bottom: this.sideBar.centerY - 35,
-     // left: this.sideBar.centerX - 70,
-     // scale: 0.36,
-    });
-    this.addChild(this.imageR);
+    
 
 
 
@@ -592,7 +612,7 @@ export class SimScreenView extends ScreenView {
     this.realRadiusProperty.link((value: number) => {
 
       // this.RText.string = `Radius: R = (T<sub>Sun</sub>/T) <sup>2</sup> (L/L<sub>Sun</sub>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
-      this.RText.string = `Radius: R =  T <sup>4</sup><sup>1/2</sup> 
+      this.RText.string = ` <sup></sup><sup></sup> 
     <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toLocaleString('en-US', { maximumSignificantDigits: 2 })} R<sub>Sun</sub>`;
     });
 
