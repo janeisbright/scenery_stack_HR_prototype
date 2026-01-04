@@ -362,23 +362,33 @@ export class SimScreenView extends ScreenView {
         })
       ]
     });
-
+    this.addChild(this.tempSlider)
  
 
-
-    this.sideBar.addChild(this.tempSlider); // Add the slider to the view
-
+    
+    
     this.imageR = new Image('public/images/R_eqn_label.png',{
+      initialWidth: 1070,
+      initialHeight: 198,
       scale: 0.28,
      // opacity: 0.5,
      // center: new Vector2(740, 236),
-      left: 630,
-      bottom: 201,
+
+
+     // left: 630,
+     // bottom: 201,
+     // bottom: 258,
+      bottom: this.sideBar.centerY - 21,
+      left: this.sideBar.centerX - 184,
+    
+      //center: new Vector2(0, 0),
+
      // bottom: this.sideBar.centerY - 35,
      // left: this.sideBar.centerX - 70,
      // scale: 0.36,
     });
-    this.addChild(this.imageR);
+    //this.addChild(this.imageR);
+    this.sideBar.addChild(this.imageR)
 
 
 
@@ -605,7 +615,7 @@ export class SimScreenView extends ScreenView {
     this.realRadiusProperty.link((value: number) => {
 
       // this.RText.string = `Radius: R = (T<sub>Sun</sub>/T) <sup>2</sup> (L/L<sub>Sun</sub>)<sup>1/2</sup> <br/> = ${value.toPrecision(5)} R<sub>Sun</sub>`;
-      this.RText.string = `Radius: R =  <sup>1/2</sup> 
+      this.RText.string = ` <sup></sup> 
     <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ${value.toLocaleString('en-US', { maximumSignificantDigits: 2 })} R<sub>Sun</sub>`;
     });
 
